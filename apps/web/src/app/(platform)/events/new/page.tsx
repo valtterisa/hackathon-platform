@@ -1,5 +1,6 @@
 import { Button, Input, Label, Textarea } from "@hackhost/ui";
 import { redirect } from "next/navigation";
+import { AiHackathonCreator } from "@/components/ai-hackathon-creator";
 import { createHackathon } from "@/lib/actions/hackathons";
 import { getSession } from "@/lib/session";
 
@@ -11,9 +12,19 @@ export default async function NewEventPage() {
     <div className="mx-auto max-w-xl px-4 py-10">
       <h1 className="font-display text-3xl font-semibold">Create a hackathon</h1>
       <p className="mt-2 text-[var(--muted-foreground)]">
-        No approval gate. You become the organizer instantly.
+        No approval gate. You become the organizer instantly. Or connect an MCP
+        client (ChatGPT / Cursor) to{" "}
+        <code className="text-xs">/api/mcp</code>.
       </p>
-      <form action={createHackathon} className="mt-8 space-y-4">
+      <div className="mt-8">
+        <AiHackathonCreator />
+      </div>
+      <div className="my-8 flex items-center gap-3 text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
+        <div className="h-px flex-1 bg-[var(--border)]" />
+        or fill manually
+        <div className="h-px flex-1 bg-[var(--border)]" />
+      </div>
+      <form action={createHackathon} className="space-y-4">
         <div>
           <Label htmlFor="title">Title</Label>
           <Input id="title" name="title" required placeholder="Nordic Builders Hackathon" />
