@@ -1,6 +1,18 @@
 import { db } from "@hackhost/db";
 import { announcements } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  Form,
+  Input,
+  List,
+  ListItem,
+  PageHeader,
+  Panel,
+  Section,
+  Textarea,
+} from "@hackhost/ui";
 import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { createAnnouncement } from "@/lib/actions/hackathons";
@@ -21,30 +33,45 @@ export default async function ManageAnnouncementsPage({
   const create = createAnnouncement.bind(null, slug);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Announcements</h1>
-      <form action={create} className="mt-6 max-w-lg space-y-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input id="title" name="title" required />
-        </div>
-        <div>
-          <Label htmlFor="body">Body</Label>
-          <Textarea id="body" name="body" required />
-        </div>
-        <Button type="submit">Publish</Button>
-      </form>
-      <ul className="mt-8 space-y-3">
-        {list.map((a) => (
-          <li key={a.id} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-            <p className="font-medium">{a.title}</p>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">{a.body}</p>
-            <p className="mt-2 text-xs text-[var(--muted-foreground)]">
-              {a.createdAt.toLocaleString()}
-            </p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <PageHeader
+        title="Announcements"
+        description="Updates posted to every participant's home page."
+      />
+
+      <Section title="New announcement">
+        <Panel>
+          <Form action={create}>
+            <Field label="Title" htmlFor="title">
+              <Input id="title" name="title" required />
+            </Field>
+            <Field label="Body" htmlFor="body">
+              <Textarea id="body" name="body" required />
+            </Field>
+            <div>
+              <Button type="submit">Publish</Button>
+            </div>
+          </Form>
+        </Panel>
+      </Section>
+
+      <Section title="Posted">
+        {list.length === 0 ? (
+          <EmptyState title="No announcements yet" />
+        ) : (
+          <List>
+            {list.map((a) => (
+              <ListItem
+                key={a.id}
+                title={a.title}
+                meta={a.createdAt.toLocaleString()}
+              >
+                {a.body}
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Section>
+    </>
   );
 }

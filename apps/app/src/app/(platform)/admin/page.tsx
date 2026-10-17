@@ -1,7 +1,15 @@
 import { db } from "@hackhost/db";
 import { hackathons, user } from "@hackhost/db/schema";
+import {
+  List,
+  ListItem,
+  ListLink,
+  PageHeader,
+  Section,
+  Tag,
+  statusTone,
+} from "@hackhost/ui";
 import { desc, eq } from "drizzle-orm";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 
@@ -20,41 +28,37 @@ export default async function AdminPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="font-display text-3xl font-semibold">Platform admin</h1>
-      <p className="mt-1 text-[var(--muted-foreground)]">
-        Moderate events and users. Abuse controls live here for the managed service.
-      </p>
+    <>
+      <PageHeader
+        title="Platform admin"
+        description="Moderate events and users. Abuse controls live here for the managed service."
+      />
 
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold">Events</h2>
-        <ul className="mt-3 space-y-2 text-sm">
+      <Section title="Events" description="Latest 50">
+        <List>
           {events.map((e) => (
-            <li key={e.id} className="flex justify-between gap-4 border-b border-[var(--border)] py-2">
-              <Link href={`/e/${e.slug}`} className="text-[var(--primary)] underline">
-                {e.title}
-              </Link>
-              <span className="text-[var(--muted-foreground)]">{e.status}</span>
-            </li>
+            <ListLink
+              key={e.id}
+              href={`/e/${e.slug}`}
+              title={e.title}
+              aside={<Tag tone={statusTone(e.status)}>{e.status}</Tag>}
+            />
           ))}
-        </ul>
-      </section>
+        </List>
+      </Section>
 
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold">Users</h2>
-        <ul className="mt-3 space-y-2 text-sm">
+      <Section title="Users" description="Latest 50">
+        <List>
           {users.map((u) => (
-            <li key={u.id} className="flex justify-between gap-4 border-b border-[var(--border)] py-2">
-              <span>
-                {u.name} · {u.email}
-              </span>
-              {u.isPlatformAdmin ? (
-                <span className="text-[var(--accent)]">admin</span>
-              ) : null}
-            </li>
+            <ListItem
+              key={u.id}
+              title={u.name}
+              meta={u.email}
+              aside={u.isPlatformAdmin ? <Tag tone="ink">admin</Tag> : null}
+            />
           ))}
-        </ul>
-      </section>
-    </div>
+        </List>
+      </Section>
+    </>
   );
 }

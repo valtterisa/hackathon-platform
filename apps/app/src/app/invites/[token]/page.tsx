@@ -1,7 +1,9 @@
-import { Button } from "@hackhost/ui";
+import { Button, PageHeader } from "@hackhost/ui";
 import { redirect } from "next/navigation";
+import { Wordmark } from "@/components/wordmark";
 import { acceptInvite } from "@/lib/actions/hackathons";
 import { getSession } from "@/lib/session";
+import { marketingUrl } from "@/lib/urls";
 
 export default async function InvitePage({
   params,
@@ -13,20 +15,25 @@ export default async function InvitePage({
   if (!session) redirect(`/login?next=/invites/${token}`);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-      <h1 className="font-display text-3xl font-semibold">Accept invite</h1>
-      <p className="mt-2 text-[var(--muted-foreground)]">
-        You were invited to join a hackathon role or team on Hackhost.
-      </p>
+    <div className="mx-auto min-h-screen w-full max-w-xl px-[var(--margin)] pb-20">
+      <header className="flex h-16 items-center">
+        <a href={marketingUrl("/")} className="text-ink">
+          <Wordmark />
+        </a>
+      </header>
+      <PageHeader
+        className="mt-16"
+        title="Accept invite"
+        description="You were invited to join a hackathon role or team on Hackhost."
+      />
       <form
         action={async () => {
           "use server";
           await acceptInvite(token);
         }}
-        className="mt-6"
       >
-        <Button type="submit" className="w-full">
-          Accept
+        <Button type="submit" size="lg" className="w-full">
+          Accept invite
         </Button>
       </form>
     </div>

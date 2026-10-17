@@ -1,6 +1,15 @@
 import { db } from "@hackhost/db";
 import { submissions, teams } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  Form,
+  Input,
+  PageHeader,
+  Panel,
+  Textarea,
+} from "@hackhost/ui";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { scoreSubmission } from "@/lib/actions/hackathons";
@@ -22,53 +31,62 @@ export default async function ManageJudgingPage({
     .where(eq(submissions.hackathonId, event.id));
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Judging</h1>
-      <ul className="mt-6 space-y-6">
-        {rows.map(({ submission, team }) => (
-          <li
-            key={submission.id}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-          >
-            <p className="font-medium">{submission.title}</p>
-            <p className="text-sm text-[var(--muted-foreground)]">{team.name}</p>
-            <form
-              action={async (formData) => {
-                "use server";
-                await scoreSubmission(
-                  slug,
-                  submission.id,
-                  Number(formData.get("score") ?? 0),
-                  String(formData.get("feedback") ?? ""),
-                );
-              }}
-              className="mt-3 grid max-w-sm gap-2"
-            >
-              <div>
-                <Label htmlFor={`score-${submission.id}`}>Score (0–100)</Label>
-                <Input
-                  id={`score-${submission.id}`}
-                  name="score"
-                  type="number"
-                  min={0}
-                  max={100}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor={`fb-${submission.id}`}>Feedback</Label>
-                <Textarea id={`fb-${submission.id}`} name="feedback" />
-              </div>
-              <Button type="submit" size="sm">
-                Save score
-              </Button>
-            </form>
-          </li>
-        ))}
-        {rows.length === 0 ? (
-          <p className="text-[var(--muted-foreground)]">No submissions to judge.</p>
-        ) : null}
-      </ul>
-    </div>
+    <>
+      <PageHeader
+        title="Judging"
+        description="Score each submission from 0 to 100 and leave feedback for the team."
+      />
+      {rows.length === 0 ? (
+        <EmptyState title="No submissions to judge">
+          Submissions appear here once teams submit their projects.
+        </EmptyState>
+      ) : (
+        <ul className="flex flex-col gap-6">
+          {rows.map(({ submission, team }) => (
+            <li key={submission.id}>
+              <Panel>
+                <p className="font-medium text-ink">{submission.title}</p>
+                <p className="text-sm text-muted">{team.name}</p>
+                <Form
+                  action={async (formData) => {
+                    "use server";
+                    await scoreSubmission(
+                      slug,
+                      submission.id,
+                      Number(formData.get("score") ?? 0),
+                      String(formData.get("feedback") ?? ""),
+                    );
+                  }}
+                  className="mt-5"
+                >
+                  <Field
+                    label="Score (0–100)"
+                    htmlFor={`score-${submission.id}`}
+                    className="max-w-40"
+                  >
+                    <Input
+                      id={`score-${submission.id}`}
+                      name="score"
+                      type="number"
+                      min={0}
+                      max={100}
+                      required
+                    />
+                  </Field>
+                  <Field label="Feedback" htmlFor={`fb-${submission.id}`}>
+                    <Textarea id={`fb-${submission.id}`} name="feedback" />
+                  </Field>
+                  <div>
+                    <Button type="submit" size="sm">
+                      Save score
+                    </Button>
+                  </div>
+                </Form>
+              </Panel>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
   );
 }

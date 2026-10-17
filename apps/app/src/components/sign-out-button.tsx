@@ -8,7 +8,7 @@ export function SignOutButton() {
   const router = useRouter();
   return (
     <Button
-      variant="soft"
+      variant="secondary"
       size="sm"
       type="button"
       onClick={async () => {

@@ -1,6 +1,6 @@
 import { db } from "@hackhost/db";
 import { challenges } from "@hackhost/db/schema";
-import { Button } from "@hackhost/ui";
+import { Button, EmptyState, List, ListItem, PageHeader } from "@hackhost/ui";
 import { eq } from "drizzle-orm";
 import {
   assertCanAccessEventApp,
@@ -19,40 +19,40 @@ export default async function ChallengesPage({
   });
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Challenges</h1>
-      <ul className="mt-6 space-y-4">
-        {list.map((ch) => (
-          <li
-            key={ch.id}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-          >
-            <p className="font-medium">{ch.title}</p>
-            {ch.sponsorName ? (
-              <p className="text-sm text-[var(--muted-foreground)]">
-                by {ch.sponsorName}
-              </p>
-            ) : null}
-            <p className="mt-2 text-sm whitespace-pre-wrap">{ch.description}</p>
-            <form
-              action={async () => {
-                "use server";
-                await selectChallenge(slug, ch.id);
-              }}
-              className="mt-3"
+    <>
+      <PageHeader
+        title="Challenges"
+        description="Pick the challenge your team will build for."
+      />
+      {list.length === 0 ? (
+        <EmptyState title="No challenges published yet">
+          Check back once organisers publish the tracks.
+        </EmptyState>
+      ) : (
+        <List>
+          {list.map((ch) => (
+            <ListItem
+              key={ch.id}
+              title={ch.title}
+              meta={ch.sponsorName ? `by ${ch.sponsorName}` : undefined}
+              aside={
+                <form
+                  action={async () => {
+                    "use server";
+                    await selectChallenge(slug, ch.id);
+                  }}
+                >
+                  <Button type="submit" size="sm" variant="secondary">
+                    Select for my team
+                  </Button>
+                </form>
+              }
             >
-              <Button type="submit" size="sm">
-                Select for my team
-              </Button>
-            </form>
-          </li>
-        ))}
-        {list.length === 0 ? (
-          <p className="text-[var(--muted-foreground)]">
-            No challenges published yet.
-          </p>
-        ) : null}
-      </ul>
-    </div>
+              <p className="whitespace-pre-wrap">{ch.description}</p>
+            </ListItem>
+          ))}
+        </List>
+      )}
+    </>
   );
 }

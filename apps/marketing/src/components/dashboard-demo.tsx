@@ -1,60 +1,48 @@
 "use client";
 
-import { Button, Input, cn } from "@hackhost/ui";
-import { useState, type ReactNode } from "react";
-import { Frame } from "@/components/marketing";
+import {
+  AppMain,
+  AppShell,
+  Button,
+  Field,
+  Form,
+  Input,
+  List,
+  ListButton,
+  ListItem,
+  PageHeader,
+  Section,
+  Sidebar,
+  SidebarHeader,
+  SidebarItem,
+  SidebarNav,
+  SidebarSwitch,
+  SidebarSwitchItem,
+  Stat,
+  StatGrid,
+  Tag,
+  Textarea,
+  statusTone,
+} from "@hackhost/ui";
+import { useState } from "react";
 
 type Mode = "participant" | "organizer";
-type ParticipantView =
-  | "home"
-  | "team"
-  | "match"
-  | "challenges"
-  | "submit"
-  | "schedule";
-type OrganizerView =
-  | "overview"
-  | "people"
-  | "teams"
-  | "submissions"
-  | "schedule"
-  | "judging";
+
+const PARTICIPANT_VIEWS = ["Home", "Team", "Match", "Challenges", "Submit", "Schedule"] as const;
+const ORGANIZER_VIEWS = ["Overview", "People", "Teams", "Submissions", "Schedule", "Judging"] as const;
+
+type ParticipantView = (typeof PARTICIPANT_VIEWS)[number];
+type OrganizerView = (typeof ORGANIZER_VIEWS)[number];
 
 const EVENT = {
   title: "Nordic Builders",
-  slug: "nordic-builders",
-  when: "Mar 14–16 · Helsinki + Online",
-  tagline: "48 hours to ship something real",
+  when: "14–16 March · Helsinki and online",
 };
-
-const PARTICIPANT_NAV: { id: ParticipantView; label: string }[] = [
-  { id: "home", label: "Home" },
-  { id: "team", label: "Team" },
-  { id: "match", label: "Match" },
-  { id: "challenges", label: "Challenges" },
-  { id: "submit", label: "Submit" },
-  { id: "schedule", label: "Schedule" },
-];
-
-const ORGANIZER_NAV: { id: OrganizerView; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "people", label: "People" },
-  { id: "teams", label: "Teams" },
-  { id: "submissions", label: "Submissions" },
-  { id: "schedule", label: "Schedule" },
-  { id: "judging", label: "Judging" },
-];
 
 const MOCK = {
   announcements: [
-    {
-      title: "Kickoff in the main hall",
-      body: "Doors open 17:00. Bring laptop + charger. Dinner is on us.",
-    },
-    {
-      title: "Sponsor APIs are live",
-      body: "Keys in the #sponsors channel. Rate limits are generous for the weekend.",
-    },
+    { title: "Kickoff in the main hall", when: "Fri 16:30", body: "Doors open 17:00. Bring a laptop and charger. Dinner is on us." },
+    { title: "Sponsor APIs are live", when: "Fri 18:40", body: "Keys are in the sponsors channel. Rate limits are generous for the weekend." },
   ],
   team: {
     name: "Ferry Stack",
@@ -65,422 +53,309 @@ const MOCK = {
     ],
   },
   matches: [
-    { name: "Sofia K.", skills: "ML · Python", note: "Looking for frontend" },
-    { name: "Jonas P.", skills: "React · Rust", note: "Open to any track" },
-    { name: "Elena V.", skills: "Product · UX", note: "Has a climate idea" },
+    { name: "Sofia K.", skills: "ML · Python", note: "Wants a frontend partner", fit: 80 },
+    { name: "Jonas P.", skills: "React · Rust", note: "Open to any track", fit: 40 },
+    { name: "Elena V.", skills: "Product · UX", note: "Has a climate idea", fit: 20 },
   ],
   challenges: [
-    {
-      name: "Climate data",
-      sponsor: "Nordic Energy",
-      prize: "€3,000",
-    },
-    {
-      name: "Local commerce",
-      sponsor: "Helsinki Merchants",
-      prize: "€2,000",
-    },
-    {
-      name: "Open track",
-      sponsor: "Hackhost",
-      prize: "€1,500",
-    },
+    { name: "Climate data", sponsor: "Nordic Energy", prize: "€3,000" },
+    { name: "Local commerce", sponsor: "Helsinki Merchants", prize: "€2,000" },
+    { name: "Open track", sponsor: "Hackhost", prize: "€1,500" },
   ],
   schedule: [
-    { time: "Fri 18:00", title: "Kickoff & team forming" },
-    { time: "Sat 12:00", title: "Mentor office hours" },
-    { time: "Sun 14:00", title: "Submissions close" },
-    { time: "Sun 16:00", title: "Demos & awards" },
+    { time: "Fri 18:00", title: "Kickoff and team forming", place: "Main hall" },
+    { time: "Sat 12:00", title: "Mentor office hours", place: "Room B" },
+    { time: "Sun 14:00", title: "Submissions close", place: "Online" },
+    { time: "Sun 16:00", title: "Demos and awards", place: "Main hall" },
   ],
   people: [
-    { name: "Ada Lovelace", role: "Participant", status: "Active" },
-    { name: "Grace Hopper", role: "Participant", status: "Active" },
-    { name: "Alan Turing", role: "Participant", status: "Pending" },
-    { name: "You (organiser)", role: "Organiser", status: "Active" },
+    { name: "Ada Lovelace", email: "ada@example.com", role: "participant", status: "active" },
+    { name: "Grace Hopper", email: "grace@example.com", role: "participant", status: "active" },
+    { name: "Alan Turing", email: "alan@example.com", role: "participant", status: "pending" },
+    { name: "Katherine Johnson", email: "katherine@example.com", role: "judge", status: "active" },
   ],
   teams: [
-    { name: "Ferry Stack", size: 3, challenge: "Climate data" },
-    { name: "Baltic Bits", size: 4, challenge: "Local commerce" },
-    { name: "Sauna Scripts", size: 2, challenge: "Open track" },
+    { name: "Ferry Stack", size: 3, max: 4, challenge: "Climate data" },
+    { name: "Baltic Bits", size: 4, max: 4, challenge: "Local commerce" },
+    { name: "Sauna Scripts", size: 2, max: 4, challenge: "Open track" },
   ],
   submissions: [
-    { project: "Heatmap Helsinki", team: "Ferry Stack", status: "Draft" },
-    { project: "Corner Shop API", team: "Baltic Bits", status: "Submitted" },
-    { project: "Ferry Delay Bot", team: "Sauna Scripts", status: "Submitted" },
-  ],
-  stats: [
-    { label: "Participants", value: "128" },
-    { label: "Pending", value: "7" },
-    { label: "Teams", value: "34" },
-    { label: "Submissions", value: "12" },
+    { project: "Heatmap Helsinki", team: "Ferry Stack", status: "draft" },
+    { project: "Corner Shop API", team: "Baltic Bits", status: "submitted" },
+    { project: "Ferry Delay Bot", team: "Sauna Scripts", status: "submitted" },
   ],
 };
 
-function DemoHeading({
-  title,
-  children,
+function ParticipantPage({
+  view,
+  go,
 }: {
-  title: string;
-  children?: ReactNode;
+  view: ParticipantView;
+  go: (view: ParticipantView) => void;
 }) {
-  return (
-    <header className="mb-5 space-y-1">
-      <h3 className="text-lg font-semibold tracking-tight text-zinc-900">
-        {title}
-      </h3>
-      {children ? (
-        <p className="text-sm text-zinc-500">{children}</p>
-      ) : null}
-    </header>
-  );
+  switch (view) {
+    case "Home":
+      return (
+        <>
+          <PageHeader as="p" title="Home" description={`Next steps for ${EVENT.title}`} />
+          <List>
+            <ListButton title="Find or create a team" onClick={() => go("Team")} />
+            <ListButton title="Match with teammates" onClick={() => go("Match")} />
+            <ListButton title="Pick a challenge" onClick={() => go("Challenges")} />
+            <ListButton title="Submit your project" onClick={() => go("Submit")} />
+          </List>
+          <Section as="p" title="Announcements">
+            <List>
+              {MOCK.announcements.map((a) => (
+                <ListItem key={a.title} title={a.title} meta={a.when}>
+                  {a.body}
+                </ListItem>
+              ))}
+            </List>
+          </Section>
+        </>
+      );
+    case "Team":
+      return (
+        <>
+          <PageHeader as="p"
+            title={MOCK.team.name}
+            description="3 of 4 seats taken · Climate data"
+            actions={<Button variant="secondary">Invite teammate</Button>}
+          />
+          <List>
+            {MOCK.team.members.map((m) => (
+              <ListItem key={m.name} title={m.name} aside={<Tag>{m.role}</Tag>} />
+            ))}
+          </List>
+        </>
+      );
+    case "Match":
+      return (
+        <>
+          <PageHeader as="p" title="Match" description="People in this event looking for a team." />
+          <List>
+            {MOCK.matches.map((m) => (
+              <ListItem
+                key={m.name}
+                title={m.name}
+                meta={m.skills}
+                aside={<Tag tone={m.fit >= 60 ? "ok" : "neutral"}>{m.fit}% fit</Tag>}
+              >
+                {m.note}
+              </ListItem>
+            ))}
+          </List>
+        </>
+      );
+    case "Challenges":
+      return (
+        <>
+          <PageHeader as="p" title="Challenges" description="Pick a track to build for." />
+          <List>
+            {MOCK.challenges.map((c) => (
+              <ListItem
+                key={c.name}
+                title={c.name}
+                meta={`by ${c.sponsor}`}
+                aside={<Button size="sm" variant="secondary">Select</Button>}
+              >
+                Prize {c.prize}
+              </ListItem>
+            ))}
+          </List>
+        </>
+      );
+    case "Submit":
+      return (
+        <>
+          <PageHeader as="p" title="Submit" description="Submissions close Sunday 14:00." />
+          <Form onSubmit={(e) => e.preventDefault()}>
+            <Field label="Project title" htmlFor="demo-title">
+              <Input id="demo-title" defaultValue="Heatmap Helsinki" />
+            </Field>
+            <Field label="Description" htmlFor="demo-desc">
+              <Textarea id="demo-desc" defaultValue="Live heat map of the city's energy use, block by block." />
+            </Field>
+            <Field label="Repo URL" htmlFor="demo-repo">
+              <Input id="demo-repo" defaultValue="https://github.com/ferry-stack/heatmap" />
+            </Field>
+            <Button type="submit" className="self-start">
+              Update submission
+            </Button>
+          </Form>
+        </>
+      );
+    case "Schedule":
+      return <SchedulePage />;
+  }
 }
 
-function DemoList({
-  items,
-}: {
-  items: { title: string; meta?: string; body?: string }[];
-}) {
-  return (
-    <ul className="space-y-2">
-      {items.map((item) => (
-        <li key={item.title} className="bg-[var(--surface)] px-4 py-3">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <p className="font-medium text-zinc-900">{item.title}</p>
-            {item.meta ? (
-              <p className="text-sm text-zinc-500">{item.meta}</p>
-            ) : null}
-          </div>
-          {item.body ? (
-            <p className="mt-1 text-sm text-zinc-600">{item.body}</p>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function ParticipantHome({
-  onGo,
-}: {
-  onGo: (view: ParticipantView) => void;
-}) {
-  const shortcuts: { id: ParticipantView; label: string }[] = [
-    { id: "team", label: "Find or create a team" },
-    { id: "match", label: "Match with teammates" },
-    { id: "challenges", label: "Pick a challenge" },
-    { id: "submit", label: "Submit your project" },
-    { id: "schedule", label: "View schedule" },
-  ];
-
+function SchedulePage() {
   return (
     <>
-      <DemoHeading title="Home">Next steps for {EVENT.title}</DemoHeading>
-      <ul className="mb-6 space-y-2">
-        {shortcuts.map((s) => (
-          <li key={s.id}>
-            <button
-              type="button"
-              onClick={() => onGo(s.id)}
-              className="flex w-full cursor-pointer items-center justify-between bg-[var(--surface)] px-4 py-3 text-left text-sm text-zinc-900 hover:bg-zinc-200"
-            >
-              {s.label}
-              <span className="text-zinc-400">→</span>
-            </button>
-          </li>
+      <PageHeader as="p" title="Schedule" description={EVENT.when} />
+      <List>
+        {MOCK.schedule.map((s) => (
+          <ListItem key={s.title} title={s.title} meta={`${s.time} · ${s.place}`} />
         ))}
-      </ul>
-      <h4 className="mb-2 text-sm font-semibold text-zinc-900">Announcements</h4>
-      <DemoList
-        items={MOCK.announcements.map((a) => ({
-          title: a.title,
-          body: a.body,
-        }))}
-      />
+      </List>
     </>
   );
 }
 
-function ParticipantViews({
-  view,
-  onGo,
-}: {
-  view: ParticipantView;
-  onGo: (view: ParticipantView) => void;
-}) {
+function OrganizerPage({ view }: { view: OrganizerView }) {
   switch (view) {
-    case "home":
-      return <ParticipantHome onGo={onGo} />;
-    case "team":
+    case "Overview":
       return (
         <>
-          <DemoHeading title="Team">{MOCK.team.name}</DemoHeading>
-          <DemoList
-            items={MOCK.team.members.map((m) => ({
-              title: m.name,
-              meta: m.role,
-            }))}
-          />
-          <Button type="button" variant="soft" className="mt-4">
-            Invite teammate
-          </Button>
-        </>
-      );
-    case "match":
-      return (
-        <>
-          <DemoHeading title="Match">
-            People looking for teammates
-          </DemoHeading>
-          <DemoList
-            items={MOCK.matches.map((m) => ({
-              title: m.name,
-              meta: m.skills,
-              body: m.note,
-            }))}
-          />
-        </>
-      );
-    case "challenges":
-      return (
-        <>
-          <DemoHeading title="Challenges">Pick a track to build for</DemoHeading>
-          <DemoList
-            items={MOCK.challenges.map((c) => ({
-              title: c.name,
-              meta: c.prize,
-              body: `Sponsored by ${c.sponsor}`,
-            }))}
-          />
-        </>
-      );
-    case "submit":
-      return (
-        <>
-          <DemoHeading title="Submit">Ship before Sunday 14:00</DemoHeading>
-          <Frame className="space-y-3 p-4">
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-zinc-700">
-                Project name
+          <PageHeader as="p"
+            title="Overview"
+            description={
+              <span className="flex flex-wrap gap-2">
+                <Tag tone="ok">published</Tag>
+                <Tag>Join: open</Tag>
               </span>
-              <Input defaultValue="Heatmap Helsinki" />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-zinc-700">
-                Repo URL
-              </span>
-              <Input defaultValue="https://github.com/ferry-stack/heatmap" />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1.5 block font-medium text-zinc-700">
-                Demo URL
-              </span>
-              <Input placeholder="https://" />
-            </label>
-            <Button type="button">Save draft</Button>
-          </Frame>
-        </>
-      );
-    case "schedule":
-      return (
-        <>
-          <DemoHeading title="Schedule">{EVENT.when}</DemoHeading>
-          <DemoList
-            items={MOCK.schedule.map((s) => ({
-              title: s.title,
-              meta: s.time,
-            }))}
+            }
+            actions={<Button>Edit page</Button>}
           />
+          <StatGrid>
+            <Stat label="Participants" value={128} />
+            <Stat label="Pending" value={7} tone="accent" />
+            <Stat label="Teams" value={34} />
+            <Stat label="Submissions" value={12} />
+          </StatGrid>
         </>
       );
-  }
-}
-
-function OrganizerViews({ view }: { view: OrganizerView }) {
-  switch (view) {
-    case "overview":
+    case "People":
       return (
         <>
-          <DemoHeading title="Overview">
-            Status: published · Join: open
-          </DemoHeading>
-          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {MOCK.stats.map((s) => (
-              <div
-                key={s.label}
-                className="bg-[var(--surface)] p-4"
-              >
-                <p className="text-sm text-zinc-500">{s.label}</p>
-                <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">
-                  {s.value}
-                </p>
-              </div>
+          <PageHeader as="p"
+            title="People"
+            description="Registrations and roles"
+            actions={<Button variant="secondary">Export CSV</Button>}
+          />
+          <List>
+            {MOCK.people.map((p) => (
+              <ListItem
+                key={p.email}
+                title={p.name}
+                meta={`${p.email} · ${p.role}`}
+                aside={
+                  p.status === "pending" ? (
+                    <>
+                      <Button size="sm">Approve</Button>
+                      <Button size="sm" variant="secondary">Reject</Button>
+                    </>
+                  ) : (
+                    <Tag tone={statusTone(p.status)}>{p.status}</Tag>
+                  )
+                }
+              />
             ))}
-          </div>
-          <p className="text-sm text-zinc-600">{EVENT.tagline}</p>
+          </List>
         </>
       );
-    case "people":
+    case "Teams":
       return (
         <>
-          <DemoHeading title="People">Registrations & roles</DemoHeading>
-          <DemoList
-            items={MOCK.people.map((p) => ({
-              title: p.name,
-              meta: `${p.role} · ${p.status}`,
-            }))}
-          />
+          <PageHeader as="p" title="Teams" description="Formed for this weekend" />
+          <List>
+            {MOCK.teams.map((t) => (
+              <ListItem key={t.name} title={t.name} meta={t.challenge} aside={<Tag>{`${t.size}/${t.max}`}</Tag>} />
+            ))}
+          </List>
         </>
       );
-    case "teams":
+    case "Submissions":
       return (
         <>
-          <DemoHeading title="Teams">Formed for this weekend</DemoHeading>
-          <DemoList
-            items={MOCK.teams.map((t) => ({
-              title: t.name,
-              meta: `${t.size} members`,
-              body: t.challenge,
-            }))}
-          />
+          <PageHeader as="p" title="Submissions" description="Projects handed in so far" />
+          <List>
+            {MOCK.submissions.map((s) => (
+              <ListItem
+                key={s.project}
+                title={s.project}
+                meta={s.team}
+                aside={<Tag tone={statusTone(s.status)}>{s.status}</Tag>}
+              />
+            ))}
+          </List>
         </>
       );
-    case "submissions":
+    case "Schedule":
+      return <SchedulePage />;
+    case "Judging":
       return (
         <>
-          <DemoHeading title="Submissions">Projects in progress</DemoHeading>
-          <DemoList
-            items={MOCK.submissions.map((s) => ({
-              title: s.project,
-              meta: s.status,
-              body: s.team,
-            }))}
-          />
-        </>
-      );
-    case "schedule":
-      return (
-        <>
-          <DemoHeading title="Schedule">Public agenda</DemoHeading>
-          <DemoList
-            items={MOCK.schedule.map((s) => ({
-              title: s.title,
-              meta: s.time,
-            }))}
-          />
-        </>
-      );
-    case "judging":
-      return (
-        <>
-          <DemoHeading title="Judging">Score submitted projects</DemoHeading>
-          <DemoList
-            items={MOCK.submissions
-              .filter((s) => s.status === "Submitted")
-              .map((s) => ({
-                title: s.project,
-                meta: "Awaiting scores",
-                body: s.team,
-              }))}
-          />
+          <PageHeader as="p" title="Judging" description="Score submitted projects from 1 to 10." />
+          <List>
+            {MOCK.submissions
+              .filter((s) => s.status === "submitted")
+              .map((s) => (
+                <ListItem
+                  key={s.project}
+                  title={s.project}
+                  meta={s.team}
+                  aside={
+                    <>
+                      <Input aria-label={`Score for ${s.project}`} type="number" min={1} max={10} className="h-9 w-20" placeholder="–" />
+                      <Button size="sm">Save</Button>
+                    </>
+                  }
+                />
+              ))}
+          </List>
         </>
       );
   }
 }
 
 export function DashboardDemo() {
-  const [mode, setMode] = useState<Mode>("participant");
-  const [participantView, setParticipantView] =
-    useState<ParticipantView>("home");
-  const [organizerView, setOrganizerView] = useState<OrganizerView>("overview");
+  const [mode, setMode] = useState<Mode>("organizer");
+  const [participantView, setParticipantView] = useState<ParticipantView>("Home");
+  const [organizerView, setOrganizerView] = useState<OrganizerView>("Overview");
 
-  const nav = mode === "participant" ? PARTICIPANT_NAV : ORGANIZER_NAV;
-  const activeId = mode === "participant" ? participantView : organizerView;
+  const views = mode === "participant" ? PARTICIPANT_VIEWS : ORGANIZER_VIEWS;
+  const active = mode === "participant" ? participantView : organizerView;
 
   return (
-    <div
-      data-ui
-      className="overflow-hidden bg-[var(--surface)]"
-    >
-      <div className="flex items-center justify-between gap-3 bg-zinc-100 px-4 py-2.5 text-xs text-zinc-500">
-        <span>Interactive demo · mock data</span>
-        <span className="hidden sm:inline">{EVENT.title}</span>
-      </div>
-
-      <div className="flex min-h-[420px] flex-col bg-white sm:flex-row">
-        <aside className="flex w-full shrink-0 flex-col bg-[var(--surface)] sm:w-56">
-          <div className="p-4">
-            <p className="truncate text-sm font-semibold text-zinc-900">
-              {EVENT.title}
-            </p>
-            <p className="mt-0.5 truncate text-xs text-zinc-500">{EVENT.when}</p>
-          </div>
-
-          <div className="flex text-xs">
-            <button
-              type="button"
-              onClick={() => setMode("participant")}
-              className={cn(
-                "flex-1 cursor-pointer px-2 py-2.5 text-center font-medium transition-colors",
+    <AppShell className="min-h-0 md:h-[680px]">
+      <Sidebar className="md:static md:h-full">
+        <SidebarHeader title={EVENT.title}>
+          {mode === "organizer" ? "Organiser" : "Participant"}
+        </SidebarHeader>
+        <SidebarSwitch>
+          <SidebarSwitchItem active={mode === "participant"} onClick={() => setMode("participant")}>
+            Participant
+          </SidebarSwitchItem>
+          <SidebarSwitchItem active={mode === "organizer"} onClick={() => setMode("organizer")}>
+            Organise
+          </SidebarSwitchItem>
+        </SidebarSwitch>
+        <SidebarNav>
+          {views.map((v) => (
+            <SidebarItem
+              key={v}
+              active={v === active}
+              onClick={() =>
                 mode === "participant"
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-              )}
+                  ? setParticipantView(v as ParticipantView)
+                  : setOrganizerView(v as OrganizerView)
+              }
             >
-              Participant
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("organizer")}
-              className={cn(
-                "flex-1 cursor-pointer px-2 py-2.5 text-center font-medium transition-colors",
-                mode === "organizer"
-                  ? "bg-zinc-900 text-white"
-                  : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-              )}
-            >
-              Organise
-            </button>
-          </div>
-
-          <nav className="flex gap-1 overflow-x-auto p-2 sm:flex-col sm:overflow-visible">
-            {nav.map((item) => {
-              const active = item.id === activeId;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    if (mode === "participant") {
-                      setParticipantView(item.id as ParticipantView);
-                    } else {
-                      setOrganizerView(item.id as OrganizerView);
-                    }
-                  }}
-                  className={cn(
-                    "shrink-0 cursor-pointer rounded-[var(--radius)] px-3 py-2 text-left text-sm transition-colors",
-                    active
-                      ? "bg-white font-medium text-zinc-900"
-                      : "text-zinc-600 hover:bg-white hover:text-zinc-900",
-                  )}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
-
-        <div className="min-w-0 flex-1 p-4 sm:p-5">
-          {mode === "participant" ? (
-            <ParticipantViews
-              view={participantView}
-              onGo={setParticipantView}
-            />
-          ) : (
-            <OrganizerViews view={organizerView} />
-          )}
-        </div>
-      </div>
-    </div>
+              {v}
+            </SidebarItem>
+          ))}
+        </SidebarNav>
+      </Sidebar>
+      <AppMain className="md:overflow-y-auto">
+        {mode === "participant" ? (
+          <ParticipantPage view={participantView} go={setParticipantView} />
+        ) : (
+          <OrganizerPage view={organizerView} />
+        )}
+      </AppMain>
+    </AppShell>
   );
 }

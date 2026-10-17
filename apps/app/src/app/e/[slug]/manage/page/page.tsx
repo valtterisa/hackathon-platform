@@ -5,9 +5,10 @@ import {
   sponsors,
   tracks,
 } from "@hackhost/db/schema";
-import { Button, Label, Textarea } from "@hackhost/ui";
+import { Button, Field, Form, PageHeader, Panel, Textarea } from "@hackhost/ui";
 import { asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { ButtonLink } from "@/components/button-link";
 import { updateMarketingPage } from "@/lib/actions/hackathons";
 import { getHackathonBySlug } from "@/lib/rbac";
 
@@ -54,65 +55,73 @@ export default async function ManageMarketingPage({
   const save = updateMarketingPage.bind(null, slug);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Marketing page</h1>
-      <p className="mt-1 text-[var(--muted-foreground)]">
-        Public landing: /e/{slug}
-      </p>
-      <form action={save} className="mt-8 max-w-2xl space-y-4">
-        <div>
-          <Label htmlFor="highlights">Highlights (one per line)</Label>
-          <Textarea
-            id="highlights"
-            name="highlights"
-            defaultValue={highlights.join("\n")}
-            rows={4}
-          />
-        </div>
-        <div>
-          <Label htmlFor="tracks">Tracks (name|description per line)</Label>
-          <Textarea
-            id="tracks"
-            name="tracks"
-            defaultValue={eventTracks
-              .map((t) => `${t.name}|${t.description ?? ""}`)
-              .join("\n")}
-            rows={4}
-          />
-        </div>
-        <div>
-          <Label htmlFor="prizes">Prizes (title|value|description per line)</Label>
-          <Textarea
-            id="prizes"
-            name="prizes"
-            defaultValue={eventPrizes
-              .map((p) => `${p.title}|${p.value ?? ""}|${p.description ?? ""}`)
-              .join("\n")}
-            rows={4}
-          />
-        </div>
-        <div>
-          <Label htmlFor="sponsors">Sponsors (name|tier|url per line)</Label>
-          <Textarea
-            id="sponsors"
-            name="sponsors"
-            defaultValue={eventSponsors
-              .map((s) => `${s.name}|${s.tier ?? ""}|${s.url ?? ""}`)
-              .join("\n")}
-            rows={4}
-          />
-        </div>
-        <div>
-          <Label htmlFor="faq">FAQ (question|answer per line)</Label>
-          <Textarea
-            id="faq"
-            name="faq"
-            defaultValue={faq.map((f) => `${f.q}|${f.a}`).join("\n")}
-            rows={5}
-          />
-        </div>
-        <Button type="submit">Save marketing content</Button>
-      </form>
-    </div>
+    <>
+      <PageHeader
+        title="Marketing page"
+        description={`Public landing: /e/${slug}`}
+        actions={
+          <ButtonLink href={`/e/${slug}`} variant="secondary">
+            View public page
+          </ButtonLink>
+        }
+      />
+      <Panel>
+        <Form action={save} className="max-w-2xl">
+          <Field label="Highlights" htmlFor="highlights" hint="One per line.">
+            <Textarea
+              id="highlights"
+              name="highlights"
+              defaultValue={highlights.join("\n")}
+              rows={4}
+            />
+          </Field>
+          <Field label="Tracks" htmlFor="tracks" hint="name|description per line.">
+            <Textarea
+              id="tracks"
+              name="tracks"
+              defaultValue={eventTracks
+                .map((t) => `${t.name}|${t.description ?? ""}`)
+                .join("\n")}
+              rows={4}
+            />
+          </Field>
+          <Field
+            label="Prizes"
+            htmlFor="prizes"
+            hint="title|value|description per line."
+          >
+            <Textarea
+              id="prizes"
+              name="prizes"
+              defaultValue={eventPrizes
+                .map((p) => `${p.title}|${p.value ?? ""}|${p.description ?? ""}`)
+                .join("\n")}
+              rows={4}
+            />
+          </Field>
+          <Field label="Sponsors" htmlFor="sponsors" hint="name|tier|url per line.">
+            <Textarea
+              id="sponsors"
+              name="sponsors"
+              defaultValue={eventSponsors
+                .map((s) => `${s.name}|${s.tier ?? ""}|${s.url ?? ""}`)
+                .join("\n")}
+              rows={4}
+            />
+          </Field>
+          <Field label="FAQ" htmlFor="faq" hint="question|answer per line.">
+            <Textarea
+              id="faq"
+              name="faq"
+              defaultValue={faq.map((f) => `${f.q}|${f.a}`).join("\n")}
+              rows={5}
+            />
+          </Field>
+          <div>
+            <Button type="submit">Save marketing content</Button>
+          </div>
+        </Form>
+      </Panel>
+    </>
   );
 }

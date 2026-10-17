@@ -1,5 +1,6 @@
 import { db } from "@hackhost/db";
 import { teamMembers, teams, user } from "@hackhost/db/schema";
+import { EmptyState, List, ListItem, PageHeader } from "@hackhost/ui";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getHackathonBySlug } from "@/lib/rbac";
@@ -18,30 +19,37 @@ export default async function ManageTeamsPage({
   });
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Teams</h1>
-      <ul className="mt-6 space-y-3">
-        {await Promise.all(
-          eventTeams.map(async (team) => {
-            const members = await db
-              .select({ name: user.name, role: teamMembers.role })
-              .from(teamMembers)
-              .innerJoin(user, eq(teamMembers.userId, user.id))
-              .where(eq(teamMembers.teamId, team.id));
-            return (
-              <li
-                key={team.id}
-                className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-              >
-                <p className="font-medium">{team.name}</p>
-                <p className="text-sm text-[var(--muted-foreground)]">
+    <>
+      <PageHeader
+        title="Teams"
+        description={`${eventTeams.length} ${eventTeams.length === 1 ? "team" : "teams"} formed so far.`}
+      />
+      {eventTeams.length === 0 ? (
+        <EmptyState title="No teams yet">
+          Teams show up here once participants create them.
+        </EmptyState>
+      ) : (
+        <List>
+          {await Promise.all(
+            eventTeams.map(async (team) => {
+              const members = await db
+                .select({ name: user.name, role: teamMembers.role })
+                .from(teamMembers)
+                .innerJoin(user, eq(teamMembers.userId, user.id))
+                .where(eq(teamMembers.teamId, team.id));
+              return (
+                <ListItem
+                  key={team.id}
+                  title={team.name}
+                  meta={`${members.length} ${members.length === 1 ? "member" : "members"}`}
+                >
                   {members.map((m) => `${m.name} (${m.role})`).join(", ")}
-                </p>
-              </li>
-            );
-          }),
-        )}
-      </ul>
-    </div>
+                </ListItem>
+              );
+            }),
+          )}
+        </List>
+      )}
+    </>
   );
 }

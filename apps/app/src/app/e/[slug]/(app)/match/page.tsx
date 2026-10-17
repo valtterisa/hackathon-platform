@@ -1,6 +1,20 @@
 import { db } from "@hackhost/db";
 import { matchProfiles, profiles, user } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  FieldRow,
+  Form,
+  Input,
+  List,
+  ListItem,
+  PageHeader,
+  Panel,
+  Section,
+  Tag,
+  Textarea,
+} from "@hackhost/ui";
 import { and, eq, ne } from "drizzle-orm";
 import {
   assertCanAccessEventApp,
@@ -56,76 +70,75 @@ export default async function MatchPage({
   const save = upsertMatchProfile.bind(null, slug);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Match</h1>
-      <p className="mt-1 text-[var(--muted-foreground)]">
-        Lightweight skill/role matching — no 20-question maze.
-      </p>
+    <>
+      <PageHeader
+        title="Match"
+        description="Lightweight skill and role matching. No 20-question maze."
+      />
 
-      <form
-        action={save}
-        className="mt-8 max-w-lg space-y-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-      >
-        <div>
-          <Label htmlFor="roles">Roles (comma-separated)</Label>
-          <Input
-            id="roles"
-            name="roles"
-            defaultValue={((mine?.roles as string[]) ?? []).join(", ")}
-            placeholder="Developer, Designer"
-          />
-        </div>
-        <div>
-          <Label htmlFor="skills">Skills</Label>
-          <Input
-            id="skills"
-            name="skills"
-            defaultValue={((mine?.skills as string[]) ?? []).join(", ")}
-            placeholder="TypeScript, Figma"
-          />
-        </div>
-        <div>
-          <Label htmlFor="goals">Goals</Label>
-          <Textarea id="goals" name="goals" defaultValue={mine?.goals ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="lookingFor">Looking for</Label>
-          <Textarea
-            id="lookingFor"
-            name="lookingFor"
-            defaultValue={mine?.lookingFor ?? ""}
-          />
-        </div>
-        <Button type="submit">Save match profile</Button>
-      </form>
-
-      <ul className="mt-10 space-y-3">
-        {ranked.map((row) => (
-          <li
-            key={row.profile.id}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-medium">{row.user.name}</p>
-                <p className="text-sm text-[var(--muted-foreground)]">
-                  {((row.profile.roles as string[]) ?? []).join(", ")} ·{" "}
-                  {((row.profile.skills as string[]) ?? []).join(", ")}
-                </p>
-                <p className="mt-1 text-sm">{row.profile.goals}</p>
-              </div>
-              <span className="text-sm text-[var(--primary)]">
-                {row.score}% fit
-              </span>
+      <Section title="Your match profile">
+        <Panel>
+          <Form action={save}>
+            <FieldRow>
+              <Field label="Roles" htmlFor="roles" hint="Comma-separated">
+                <Input
+                  id="roles"
+                  name="roles"
+                  defaultValue={((mine?.roles as string[]) ?? []).join(", ")}
+                  placeholder="Developer, Designer"
+                />
+              </Field>
+              <Field label="Skills" htmlFor="skills" hint="Comma-separated">
+                <Input
+                  id="skills"
+                  name="skills"
+                  defaultValue={((mine?.skills as string[]) ?? []).join(", ")}
+                  placeholder="TypeScript, Figma"
+                />
+              </Field>
+            </FieldRow>
+            <Field label="Goals" htmlFor="goals">
+              <Textarea id="goals" name="goals" defaultValue={mine?.goals ?? ""} />
+            </Field>
+            <Field label="Looking for" htmlFor="lookingFor">
+              <Textarea
+                id="lookingFor"
+                name="lookingFor"
+                defaultValue={mine?.lookingFor ?? ""}
+              />
+            </Field>
+            <div>
+              <Button type="submit">Save match profile</Button>
             </div>
-          </li>
-        ))}
+          </Form>
+        </Panel>
+      </Section>
+
+      <Section title="Suggested teammates">
         {ranked.length === 0 ? (
-          <p className="text-[var(--muted-foreground)]">
-            No other match profiles yet. Save yours and invite teammates.
-          </p>
-        ) : null}
-      </ul>
-    </div>
+          <EmptyState title="No other match profiles yet">
+            Save yours and invite teammates.
+          </EmptyState>
+        ) : (
+          <List>
+            {ranked.map((row) => (
+              <ListItem
+                key={row.profile.id}
+                title={row.user.name}
+                meta={[
+                  ((row.profile.roles as string[]) ?? []).join(", "),
+                  ((row.profile.skills as string[]) ?? []).join(", "),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+                aside={<Tag tone="ok">{row.score}% fit</Tag>}
+              >
+                {row.profile.goals}
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Section>
+    </>
   );
 }

@@ -1,4 +1,18 @@
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  FieldRow,
+  Form,
+  Input,
+  List,
+  ListItem,
+  PageHeader,
+  Panel,
+  Section,
+  Select,
+  Textarea,
+} from "@hackhost/ui";
 import { updateHackathonSettings, addChannel } from "@/lib/actions/hackathons";
 import { getHackathonBySlug } from "@/lib/rbac";
 import { db } from "@hackhost/db";
@@ -28,93 +42,133 @@ export default async function ManageSettingsPage({
   }
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Settings</h1>
-      <form action={save} className="mt-8 max-w-xl space-y-4">
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input id="title" name="title" defaultValue={event.title} />
-        </div>
-        <div>
-          <Label htmlFor="tagline">Tagline</Label>
-          <Input id="tagline" name="tagline" defaultValue={event.tagline ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" defaultValue={event.description ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="coverUrl">Cover URL</Label>
-          <Input id="coverUrl" name="coverUrl" defaultValue={event.coverUrl ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="location">Location</Label>
-          <Input id="location" name="location" defaultValue={event.location ?? ""} />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label htmlFor="startsAt">Starts</Label>
-            <Input id="startsAt" name="startsAt" type="datetime-local" defaultValue={toLocal(event.startsAt)} />
-          </div>
-          <div>
-            <Label htmlFor="endsAt">Ends</Label>
-            <Input id="endsAt" name="endsAt" type="datetime-local" defaultValue={toLocal(event.endsAt)} />
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <Label htmlFor="mode">Mode</Label>
-            <select id="mode" name="mode" defaultValue={event.mode} className="flex h-10 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 text-sm">
-              <option value="in_person">In person</option>
-              <option value="online">Online</option>
-              <option value="hybrid">Hybrid</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="joinMode">Join mode</Label>
-            <select id="joinMode" name="joinMode" defaultValue={event.joinMode} className="flex h-10 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 text-sm">
-              <option value="open">Open</option>
-              <option value="apply">Apply</option>
-              <option value="invite_only">Invite only</option>
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="status">Status</Label>
-            <select id="status" name="status" defaultValue={event.status} className="flex h-10 w-full rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 text-sm">
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
-        </div>
-        <div>
-          <Label htmlFor="capacity">Capacity</Label>
-          <Input id="capacity" name="capacity" type="number" defaultValue={event.capacity ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="codeOfConduct">Code of conduct</Label>
-          <Textarea id="codeOfConduct" name="codeOfConduct" defaultValue={event.codeOfConduct ?? ""} />
-        </div>
-        <Button type="submit">Save settings</Button>
-      </form>
+    <>
+      <PageHeader
+        title="Settings"
+        description="Event details, dates, visibility and registration."
+      />
 
-      <section className="mt-12 max-w-xl">
-        <h2 className="font-display text-xl font-semibold">Channels</h2>
-        <ul className="mt-3 space-y-1 text-sm">
-          {chans.map((c) => (
-            <li key={c.id}>
-              {c.label}: {c.url}
-            </li>
-          ))}
-        </ul>
-        <form action={addCh} className="mt-4 space-y-2">
-          <Input name="label" placeholder="Discord" required />
-          <Input name="url" placeholder="https://discord.gg/…" required />
-          <Button type="submit" size="sm" variant="soft">
-            Add channel
-          </Button>
-        </form>
-      </section>
-    </div>
+      <Section title="Event details">
+        <Panel>
+          <Form action={save}>
+            <Field label="Title" htmlFor="title">
+              <Input id="title" name="title" defaultValue={event.title} />
+            </Field>
+            <Field label="Tagline" htmlFor="tagline">
+              <Input id="tagline" name="tagline" defaultValue={event.tagline ?? ""} />
+            </Field>
+            <Field label="Description" htmlFor="description">
+              <Textarea
+                id="description"
+                name="description"
+                defaultValue={event.description ?? ""}
+              />
+            </Field>
+            <Field label="Cover URL" htmlFor="coverUrl">
+              <Input id="coverUrl" name="coverUrl" defaultValue={event.coverUrl ?? ""} />
+            </Field>
+            <Field label="Location" htmlFor="location">
+              <Input id="location" name="location" defaultValue={event.location ?? ""} />
+            </Field>
+            <FieldRow>
+              <Field label="Starts" htmlFor="startsAt">
+                <Input
+                  id="startsAt"
+                  name="startsAt"
+                  type="datetime-local"
+                  defaultValue={toLocal(event.startsAt)}
+                />
+              </Field>
+              <Field label="Ends" htmlFor="endsAt">
+                <Input
+                  id="endsAt"
+                  name="endsAt"
+                  type="datetime-local"
+                  defaultValue={toLocal(event.endsAt)}
+                />
+              </Field>
+            </FieldRow>
+            <FieldRow>
+              <Field label="Mode" htmlFor="mode">
+                <Select id="mode" name="mode" defaultValue={event.mode}>
+                  <option value="in_person">In person</option>
+                  <option value="online">Online</option>
+                  <option value="hybrid">Hybrid</option>
+                </Select>
+              </Field>
+              <Field label="Join mode" htmlFor="joinMode">
+                <Select id="joinMode" name="joinMode" defaultValue={event.joinMode}>
+                  <option value="open">Open</option>
+                  <option value="apply">Apply</option>
+                  <option value="invite_only">Invite only</option>
+                </Select>
+              </Field>
+            </FieldRow>
+            <FieldRow>
+              <Field label="Status" htmlFor="status">
+                <Select id="status" name="status" defaultValue={event.status}>
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="archived">Archived</option>
+                </Select>
+              </Field>
+              <Field label="Capacity" htmlFor="capacity">
+                <Input
+                  id="capacity"
+                  name="capacity"
+                  type="number"
+                  defaultValue={event.capacity ?? ""}
+                />
+              </Field>
+            </FieldRow>
+            <Field label="Code of conduct" htmlFor="codeOfConduct">
+              <Textarea
+                id="codeOfConduct"
+                name="codeOfConduct"
+                defaultValue={event.codeOfConduct ?? ""}
+              />
+            </Field>
+            <div>
+              <Button type="submit">Save settings</Button>
+            </div>
+          </Form>
+        </Panel>
+      </Section>
+
+      <Section
+        title="Channels"
+        description="Links shown to participants, e.g. Discord or Slack."
+      >
+        {chans.length === 0 ? (
+          <EmptyState title="No channels yet" />
+        ) : (
+          <List>
+            {chans.map((c) => (
+              <ListItem key={c.id} title={c.label} meta={c.url} />
+            ))}
+          </List>
+        )}
+        <Panel className="mt-6">
+          <Form action={addCh}>
+            <FieldRow>
+              <Field label="Label" htmlFor="channel-label">
+                <Input id="channel-label" name="label" placeholder="Discord" required />
+              </Field>
+              <Field label="URL" htmlFor="channel-url">
+                <Input
+                  id="channel-url"
+                  name="url"
+                  placeholder="https://discord.gg/…"
+                  required
+                />
+              </Field>
+            </FieldRow>
+            <div>
+              <Button type="submit">Add channel</Button>
+            </div>
+          </Form>
+        </Panel>
+      </Section>
+    </>
   );
 }

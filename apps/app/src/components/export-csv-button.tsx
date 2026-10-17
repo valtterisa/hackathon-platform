@@ -8,8 +8,7 @@ export function ExportCsvButton({ slug }: { slug: string }) {
 
   return (
     <Button
-      size="sm"
-      variant="soft"
+      variant="secondary"
       type="button"
       disabled={busy}
       onClick={async () => {

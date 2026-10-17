@@ -1,7 +1,17 @@
 import { db } from "@hackhost/db";
 import { submissions, teamMembers, teams } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  Form,
+  Input,
+  PageHeader,
+  Tag,
+  Textarea,
+} from "@hackhost/ui";
 import { and, eq } from "drizzle-orm";
+import { ButtonLink } from "@/components/button-link";
 import {
   assertCanAccessEventApp,
   upsertSubmission,
@@ -38,41 +48,45 @@ export default async function SubmitPage({
   const action = upsertSubmission.bind(null, slug);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Submit</h1>
+    <>
+      <PageHeader
+        title="Submit"
+        description={team ? `Submitting as ${team.name}` : undefined}
+        actions={existing ? <Tag tone="ok">Submitted</Tag> : null}
+      />
       {!team ? (
-        <p className="mt-4 text-[var(--muted-foreground)]">
+        <EmptyState
+          title="You need a team first"
+          action={<ButtonLink href={`/e/${slug}/team`}>Go to teams</ButtonLink>}
+        >
           Create or join a team before submitting.
-        </p>
+        </EmptyState>
       ) : (
-        <form action={action} className="mt-8 max-w-lg space-y-3">
-          <div>
-            <Label htmlFor="title">Project title</Label>
+        <Form action={action}>
+          <Field label="Project title" htmlFor="title">
             <Input id="title" name="title" defaultValue={existing?.title ?? ""} required />
-          </div>
-          <div>
-            <Label htmlFor="description">Description</Label>
+          </Field>
+          <Field label="Description" htmlFor="description">
             <Textarea
               id="description"
               name="description"
               defaultValue={existing?.description ?? ""}
             />
-          </div>
-          <div>
-            <Label htmlFor="repoUrl">Repo URL</Label>
+          </Field>
+          <Field label="Repo URL" htmlFor="repoUrl">
             <Input id="repoUrl" name="repoUrl" defaultValue={existing?.repoUrl ?? ""} />
-          </div>
-          <div>
-            <Label htmlFor="demoUrl">Demo URL</Label>
+          </Field>
+          <Field label="Demo URL" htmlFor="demoUrl">
             <Input id="demoUrl" name="demoUrl" defaultValue={existing?.demoUrl ?? ""} />
-          </div>
-          <div>
-            <Label htmlFor="videoUrl">Video URL</Label>
+          </Field>
+          <Field label="Video URL" htmlFor="videoUrl">
             <Input id="videoUrl" name="videoUrl" defaultValue={existing?.videoUrl ?? ""} />
+          </Field>
+          <div>
+            <Button type="submit">{existing ? "Update submission" : "Submit"}</Button>
           </div>
-          <Button type="submit">{existing ? "Update submission" : "Submit"}</Button>
-        </form>
+        </Form>
       )}
-    </div>
+    </>
   );
 }

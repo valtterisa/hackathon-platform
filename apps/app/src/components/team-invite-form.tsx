@@ -17,7 +17,7 @@ export function TeamInviteForm({
   return (
     <Button
       size="sm"
-      variant="soft"
+      variant="secondary"
       type="button"
       disabled={loading}
       onClick={async () => {

@@ -5,6 +5,7 @@ import {
   messages,
   user,
 } from "@hackhost/db/schema";
+import { EmptyState, List, ListItem, PageHeader } from "@hackhost/ui";
 import { desc, eq, inArray } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
@@ -19,12 +20,12 @@ export default async function MessagesPage() {
   const convIds = parts.map((p) => p.conversationId);
   if (convIds.length === 0) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10">
-        <h1 className="font-display text-3xl font-semibold">Messages</h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
-          No conversations yet. Match with teammates inside an event to start chatting.
-        </p>
-      </div>
+      <>
+        <PageHeader title="Messages" />
+        <EmptyState title="No conversations yet">
+          Match with teammates inside an event to start chatting.
+        </EmptyState>
+      </>
     );
   }
 
@@ -48,26 +49,26 @@ export default async function MessagesPage() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-10">
-      <h1 className="font-display text-3xl font-semibold">Messages</h1>
-      <ul className="mt-6 space-y-3">
+    <>
+      <PageHeader title="Messages" />
+      <List>
         {threads.map(({ conv, latest, people }) => (
-          <li
+          <ListItem
             key={conv.id}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-          >
-            <p className="font-medium">
-              {people
+            title={
+              people
                 .map((p) => p.user.name)
                 .filter((n) => n !== session.user.name)
-                .join(", ") || "Conversation"}
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                .join(", ") || "Conversation"
+            }
+            meta={latest?.createdAt.toLocaleDateString()}
+          >
+            <span className={latest ? undefined : "text-muted"}>
               {latest?.body ?? "No messages"}
-            </p>
-          </li>
+            </span>
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </>
   );
 }

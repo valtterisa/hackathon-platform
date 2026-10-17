@@ -1,65 +1,94 @@
 "use client";
 
+import { cn } from "@hackhost/ui";
 import { useState } from "react";
 
 const ITEMS = [
   {
-    key: "who",
+    topic: "Who",
     q: "Who can create a hackathon?",
-    a: "Anyone signed in. No organiser approval queue — you publish, you run it.",
+    a: "Anyone with an account. There is no approval queue: you publish it, you run it, and you can invite co-organisers by link.",
   },
   {
-    key: "register",
+    topic: "Joining",
     q: "How do builders register?",
-    a: "They open your event page and register. Join modes: open, apply, or invite only.",
+    a: "They open your event page and register. Each event is open to all, by application that you approve, or invite only.",
   },
   {
-    key: "selfhost",
-    q: "Can I self-host?",
-    a: "Yes. Docker Compose plus the same codebase as managed hosting.",
+    topic: "Self-host",
+    q: "Can I run it on my own server?",
+    a: "Yes. Docker Compose and Postgres, from the same repository the managed version runs on. Nothing is held back.",
   },
   {
-    key: "match",
+    topic: "Roles",
+    q: "Which roles are there?",
+    a: "Organiser, participant, judge and mentor, set per event. A judge in one event can be a builder in the next.",
+  },
+  {
+    topic: "Teams",
     q: "Is there teammate matching?",
-    a: "Per-event skill profiles and teams — without a twenty-question maze.",
+    a: "Builders add their skills and what they are looking for, then see who fits. Teams form inside the event with invite links.",
   },
   {
-    key: "license",
-    q: "What is the license?",
-    a: "Apache-2.0. Self-host for free.",
+    topic: "Licence",
+    q: "What is the licence?",
+    a: "Apache-2.0. Use it, change it and host it for your own events or for others.",
   },
 ] as const;
 
+const CARD_TONES = ["bg-accent", "bg-orange", "bg-grey"] as const;
+
 export function HomeFaq() {
-  const [open, setOpen] = useState<string | null>("who");
+  const [open, setOpen] = useState(0);
 
   return (
-    <ul className="space-y-2">
-      {ITEMS.map((item) => {
-        const isOpen = open === item.key;
+    <div className="pt-10">
+      {ITEMS.map((item, i) => {
+        const isOpen = open === i;
+        const tone = CARD_TONES[i % CARD_TONES.length];
         return (
-          <li key={item.key}>
+          <div
+            key={item.topic}
+            className={cn("relative mt-10 first:mt-0", tone)}
+            style={{ zIndex: i + 1 }}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "absolute -top-10 flex h-10 w-[120px] items-center px-4 text-base font-medium sm:w-[200px]",
+                tone,
+                "left-[calc(var(--i)*48px)] sm:left-[calc(var(--i)*150px)]",
+              )}
+              style={{ ["--i" as string]: i % 4 }}
+            >
+              {item.topic}
+            </span>
             <button
               type="button"
-              className="flex w-full cursor-pointer items-start justify-between gap-4 bg-[var(--surface)] px-4 py-4 text-left hover:bg-zinc-200"
-              onClick={() => setOpen(isOpen ? null : item.key)}
               aria-expanded={isOpen}
+              aria-controls={`faq-${i}`}
+              onClick={() => setOpen(i)}
+              className="flex w-full cursor-pointer items-center justify-between gap-6 px-5 pt-6 pb-12 text-left sm:px-8"
             >
-              <span>
-                <span className="font-medium text-zinc-900">{item.q}</span>
-                {isOpen ? (
-                  <span className="mt-2 block text-sm leading-relaxed text-zinc-600">
-                    {item.a}
-                  </span>
-                ) : null}
-              </span>
-              <span className="shrink-0 text-zinc-400" aria-hidden>
-                {isOpen ? "−" : "+"}
+              <span className="text-xl font-medium">{item.q}</span>
+              <span
+                aria-hidden
+                className={cn(
+                  "text-2xl transition-transform duration-200 ease-out",
+                  isOpen && "rotate-45",
+                )}
+              >
+                +
               </span>
             </button>
-          </li>
+            <div id={`faq-${i}`} hidden={!isOpen}>
+              <p className="faq-answer -mt-6 max-w-[50ch] px-5 pb-12 text-[1.0625rem] sm:px-8">
+                {item.a}
+              </p>
+            </div>
+          </div>
         );
       })}
-    </ul>
+    </div>
   );
 }

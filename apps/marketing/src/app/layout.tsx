@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { RevealInit } from "@/components/reveal";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "hackhost",
+    default: "hackhost — host the hackathon",
     template: "%s · hackhost",
   },
   description:
-    "Open-source hackathon tooling. Publish event pages, register builders, run teams.",
+    "Open-source hackathon platform. Publish an event page, register builders, form teams, take submissions and judge them.",
 };
 
 export default function RootLayout({
@@ -20,21 +20,25 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://api.fontshare.com" />
         <link
           rel="preconnect"
-          href="https://fonts.gstatic.com"
+          href="https://cdn.fontshare.com"
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+          href="https://api.fontshare.com/v2/css?f[]=panchang@700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen antialiased">
-        <RevealInit />
+      <body className="min-h-dvh antialiased">
         <SiteHeader />
         <main>{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

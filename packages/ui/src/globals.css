@@ -1,120 +1,161 @@
 @import "tailwindcss";
 
+/* Fonts load from Fontshare in each app layout: Panchang 700 (display), Switzer 400–700 (text). */
+
 :root {
   --bg: #ffffff;
-  --surface: #f4f4f5;
-  --ink: #18181b;
-  --muted: #71717a;
-  --accent: #18181b;
-  --accent-ink: #ffffff;
-  --line: #e4e4e7;
-  --warn: #b45309;
-  --danger: #dc2626;
-  --link: #2563eb;
+  --surface: #f4f4f4;
+  --surface-2: #e9e9e9;
+  --ink: #0a0a0a;
+  --muted: #595959;
+  --line: #e2e2e2;
+  --line-strong: #c9c9c9;
 
-  --background: var(--bg);
-  --foreground: var(--ink);
-  --card: var(--bg);
-  --card-foreground: var(--ink);
-  --primary: var(--accent);
-  --primary-foreground: var(--accent-ink);
-  --accent-foreground: var(--accent-ink);
-  --muted-foreground: var(--muted);
-  --border: var(--line);
-  --ring: #a1a1aa;
-  --sidebar: #fafafa;
-  --sidebar-foreground: var(--ink);
-  --sidebar-muted: #ffffff;
+  --accent: #a7ff9c;
+  --accent-hover: #8ef582;
+  --accent-ink: #0a0a0a;
 
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace; /* taste-skill-ignore: mono — code only */
-  --font-display: var(--font-sans);
-  --font-text: var(--font-sans);
+  --field-grey: #c5c5c5;
+  --field-mint: #a7ff9c;
+  --field-orange: #ff6831;
+  --field-black: #0a0a0a;
+
+  --ok: #a7ff9c;
+  --warn: #ffd8c7;
+  --danger: #c4320a;
+
+  --font-text: "Switzer", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Panchang", "Switzer", ui-sans-serif, system-ui, sans-serif;
+  --font-code: ui-monospace, Menlo, monospace; /* taste-skill-ignore: mono — code only */
 
   --step-small: 0.875rem;
-  --step-body: 1.0625rem;
-  --step-lead: 1.1875rem;
-  --step-head: 1.375rem;
-  --step-display: clamp(2rem, 1.5rem + 2vw, 2.75rem);
+  --step-body: 1rem;
+  --step-lead: clamp(1.125rem, 1.05rem + 0.35vw, 1.375rem);
+  --step-head: clamp(1.75rem, 1.2rem + 2.4vw, 3.25rem);
+  --step-display: clamp(2.75rem, 0.8rem + 8.6vw, 9.5rem);
 
-  --margin: clamp(1.25rem, 4vw, 2.5rem);
-  --gutter: 1.25rem;
-  --section: clamp(3.5rem, 8vw, 5.5rem);
+  --margin: clamp(1rem, 2.4vw, 2rem);
+  --section: clamp(6rem, 12vw, 11rem);
   --radius: 0px;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --t-hover: 150ms;
-  --t-reveal: 400ms;
+  --t-reveal: 600ms;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-muted: var(--surface);
-  --color-muted-foreground: var(--muted);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-ink);
-  --color-border: var(--border);
-  --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-muted: var(--sidebar-muted);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+  --color-mint: var(--field-mint);
+  --color-orange: var(--field-orange);
+  --color-grey: var(--field-grey);
+  --color-warn: var(--warn);
   --color-danger: var(--danger);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-text);
   --font-display: var(--font-display);
-  --font-mono: var(--font-mono); /* taste-skill-ignore: mono — code only */
-  --radius-lg: var(--radius);
+  --font-mono: var(--font-code); /* taste-skill-ignore: mono — code only */
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-text);
+    font-size: var(--step-body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    color: inherit;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  [role="button"],
+  a[href],
+  label[for],
+  select,
+  summary {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  margin: 0;
-  min-height: 100dvh;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  font-size: var(--step-body);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3,
 .font-display {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1.2;
-  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
-p {
-  max-width: 58ch;
-  color: var(--ink);
+/* Scroll-driven entrance; content is always visible where view timelines are unsupported. */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+
+  .reveal:nth-child(2) {
+    animation-range: entry 12% entry 82%;
+  }
+
+  .reveal:nth-child(3) {
+    animation-range: entry 24% entry 94%;
+  }
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--accent-ink);
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -125,24 +166,8 @@ p {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-}
 
-.reveal {
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity var(--t-reveal) var(--ease-out),
-    transform var(--t-reveal) var(--ease-out);
-}
-
-.reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
   .reveal {
-    opacity: 1;
-    transform: none;
+    animation: none;
   }
 }

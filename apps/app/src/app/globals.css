@@ -1,17 +1,7 @@
 @import "@hackhost/ui/globals.css";
+@source "../../../../packages/ui/src";
 
 html,
 body {
   max-width: 100vw;
-}
-
-@layer base {
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-}
-
-.wrap {
-  padding-inline: var(--margin);
 }

@@ -8,10 +8,12 @@ import {
   sponsors,
   tracks,
 } from "@hackhost/db/schema";
+import { cn, List, ListItem, Tag } from "@hackhost/ui";
 import { and, asc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/button-link";
-import { Frame, Shell, ShellInner } from "@/components/marketing";
+import { Wordmark } from "@/components/wordmark";
 import { getSession } from "@/lib/session";
 import { marketingUrl } from "@/lib/urls";
 
@@ -94,194 +96,198 @@ export default async function EventMarketingPage({
     .join(" · ");
 
   return (
-    <Shell className="min-h-screen pb-20">
-      <header className="border-b border-zinc-100">
-        <ShellInner className="flex h-14 items-center justify-between text-sm">
-          <a
-            href={marketingUrl("/")}
-            className="cursor-pointer font-semibold tracking-tight text-zinc-900"
-          >
-            hackhost
-          </a>
-          <ButtonLink href={ctaHref} size="sm">
-            {ctaLabel}
-          </ButtonLink>
-        </ShellInner>
+    <div className="min-h-screen bg-white text-ink">
+      <header className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-[var(--margin)]">
+        <a href={marketingUrl("/")} className="cursor-pointer text-ink">
+          <Wordmark />
+        </a>
+        <ButtonLink href={ctaHref} size="sm">
+          {ctaLabel}
+        </ButtonLink>
       </header>
 
-      <ShellInner className="space-y-5 py-14 sm:py-20">
-        <h1 className="max-w-[18ch] text-[clamp(2rem,5vw,3rem)] font-semibold tracking-tight text-zinc-900">
+      <section className="mx-auto w-full max-w-6xl px-[var(--margin)] pt-16 pb-24 sm:pt-24 sm:pb-32">
+        {event.status === "draft" ? (
+          <Tag tone="warn" className="mb-8 normal-case">
+            Draft — only organisers can see this
+          </Tag>
+        ) : null}
+        <h1 className="font-display line-clamp-2 max-w-[14ch] text-[clamp(2.75rem,9vw,8rem)] text-balance">
           {event.title}
         </h1>
-        {when ? <p className="text-zinc-500">{when}</p> : null}
+        {when ? (
+          <p className="mt-6 text-2xl font-medium capitalize">{when}</p>
+        ) : null}
         {event.tagline ? (
-          <p className="max-w-[46ch] text-lg leading-relaxed text-zinc-600">
+          <p className="mt-6 max-w-[46ch] text-lg leading-relaxed sm:text-xl">
             {event.tagline}
           </p>
         ) : null}
-        {event.status === "draft" ? (
-          <p className="text-sm text-amber-700">
-            Draft — only organisers can see this
+        <ButtonLink href={ctaHref} size="lg" variant="accent" className="mt-10">
+          {ctaLabel}
+        </ButtonLink>
+      </section>
+
+      {highlightItems.length > 0 ? (
+        <Band className="bg-accent text-accent-ink">
+          <ul className="grid gap-x-10 gap-y-6 sm:grid-cols-2">
+            {highlightItems.map((item) => (
+              <li
+                key={item}
+                className="text-2xl leading-snug font-semibold tracking-[-0.02em] text-balance"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Band>
+      ) : null}
+
+      {event.description ? (
+        <Band>
+          <BandHeading>About</BandHeading>
+          <p className="max-w-[65ch] text-lg leading-relaxed whitespace-pre-wrap">
+            {event.description}
           </p>
-        ) : null}
-        <ButtonLink href={ctaHref}>{ctaLabel}</ButtonLink>
-      </ShellInner>
+        </Band>
+      ) : null}
 
-      <ShellInner className="space-y-12 pb-12">
-        {event.description ? (
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
-              About
-            </h2>
-            <p className="whitespace-pre-wrap leading-relaxed text-zinc-600">
-              {event.description}
-            </p>
-          </section>
-        ) : null}
+      {eventTracks.length > 0 ? (
+        <Band className="bg-surface">
+          <BandHeading>Tracks</BandHeading>
+          <List className="border-ink/15 [&>li+li]:border-ink/15">
+            {eventTracks.map((t) => (
+              <ListItem key={t.id} title={<Big>{t.name}</Big>}>
+                {t.description ? <Body>{t.description}</Body> : null}
+              </ListItem>
+            ))}
+          </List>
+        </Band>
+      ) : null}
 
-        {highlightItems.length > 0 ? (
-          <Frame>
-            <ul className="divide-y divide-zinc-100">
-              {highlightItems.map((item) => (
-                <li key={item} className="px-4 py-3 font-medium text-zinc-900">
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </Frame>
-        ) : null}
+      {eventPrizes.length > 0 ? (
+        <Band className="bg-orange">
+          <BandHeading>Prizes</BandHeading>
+          <List className="border-ink/25 [&>li+li]:border-ink/25">
+            {eventPrizes.map((p) => (
+              <ListItem
+                key={p.id}
+                title={<Big>{p.title}</Big>}
+                aside={
+                  p.value ? (
+                    <span className="text-xl font-semibold tabular-nums">
+                      {p.value}
+                    </span>
+                  ) : null
+                }
+              >
+                {p.description ? <Body>{p.description}</Body> : null}
+              </ListItem>
+            ))}
+          </List>
+        </Band>
+      ) : null}
 
-        {eventTracks.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
-              Tracks
-            </h2>
-            <Frame>
-              <ul className="divide-y divide-zinc-100">
-                {eventTracks.map((t) => (
-                  <li key={t.id} className="px-4 py-4">
-                    <p className="font-semibold text-zinc-900">{t.name}</p>
-                    {t.description ? (
-                      <p className="mt-1 text-sm text-zinc-600">
-                        {t.description}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </Frame>
-          </section>
-        ) : null}
+      {agenda.length > 0 ? (
+        <Band>
+          <BandHeading>Schedule</BandHeading>
+          <List>
+            {agenda.map((item) => (
+              <ListItem
+                key={item.id}
+                title={<Big>{item.title}</Big>}
+                meta={
+                  <span className="text-base text-ink">
+                    {item.startsAt.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    {item.location ? ` · ${item.location}` : ""}
+                  </span>
+                }
+              />
+            ))}
+          </List>
+        </Band>
+      ) : null}
 
-        {eventPrizes.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
-              Prizes
-            </h2>
-            <Frame>
-              <ul className="divide-y divide-zinc-100">
-                {eventPrizes.map((p) => (
-                  <li
-                    key={p.id}
-                    className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-4"
-                  >
-                    <span className="font-semibold text-zinc-900">{p.title}</span>
-                    <span className="text-zinc-700">{p.value}</span>
-                    {p.description ? (
-                      <span className="w-full text-sm text-zinc-600">
-                        {p.description}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </Frame>
-          </section>
-        ) : null}
-
-        {eventSponsors.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
-              Sponsors
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {eventSponsors.map((s) => (
+      {eventSponsors.length > 0 ? (
+        <Band className="bg-grey">
+          <BandHeading>Sponsors</BandHeading>
+          <ul className="flex flex-wrap gap-2">
+            {eventSponsors.map((s) => (
+              <li key={s.id}>
                 <a
-                  key={s.id}
                   href={s.url ?? undefined}
-                  className="rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-50"
+                  className="inline-flex h-12 items-center bg-white px-5 text-base font-medium text-ink transition-colors duration-150 hover:bg-accent"
                 >
                   {s.name}
                 </a>
-              ))}
-            </div>
-          </section>
-        ) : null}
+              </li>
+            ))}
+          </ul>
+        </Band>
+      ) : null}
 
-        {agenda.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
-              Agenda
-            </h2>
-            <Frame>
-              <ul className="divide-y divide-zinc-100">
-                {agenda.map((item) => (
-                  <li
-                    key={item.id}
-                    className="grid gap-1 px-4 py-3 sm:grid-cols-[6rem_1fr]"
-                  >
-                    <span className="text-sm text-zinc-500">
-                      {item.startsAt.toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <span>
-                      <strong className="text-zinc-900">{item.title}</strong>
-                      {item.location ? (
-                        <span className="text-zinc-500">
-                          {" "}
-                          · {item.location}
-                        </span>
-                      ) : null}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </Frame>
-          </section>
-        ) : null}
+      {faqItems.length > 0 ? (
+        <Band>
+          <BandHeading>FAQ</BandHeading>
+          <List>
+            {faqItems.map((item) => (
+              <ListItem key={item.q} title={<Big>{item.q}</Big>}>
+                <Body>{item.a}</Body>
+              </ListItem>
+            ))}
+          </List>
+        </Band>
+      ) : null}
 
-        {faqItems.length > 0 ? (
-          <section className="space-y-4">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
-              FAQ
-            </h2>
-            <Frame>
-              <dl className="divide-y divide-zinc-100">
-                {faqItems.map((item) => (
-                  <div key={item.q} className="px-4 py-4">
-                    <dt className="font-semibold text-zinc-900">{item.q}</dt>
-                    <dd className="mt-1 text-sm text-zinc-600">{item.a}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Frame>
-          </section>
+      <Band className="bg-ink text-white">
+        <h2 className="font-display line-clamp-2 max-w-[16ch] text-[clamp(2rem,6vw,5rem)] text-balance">
+          {event.title}
+        </h2>
+        {when ? (
+          <p className="mt-6 text-2xl font-medium capitalize">{when}</p>
         ) : null}
-      </ShellInner>
+        <ButtonLink href={ctaHref} size="lg" variant="inverse" className="mt-10">
+          {ctaLabel}
+        </ButtonLink>
+      </Band>
+    </div>
+  );
+}
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-zinc-200 bg-white">
-        <ShellInner className="flex items-center justify-between gap-4 py-3">
-          <p className="truncate text-sm font-medium text-zinc-900">
-            {event.title}
-          </p>
-          <ButtonLink href={ctaHref} size="sm">
-            {ctaLabel}
-          </ButtonLink>
-        </ShellInner>
+function Band({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className={cn("py-[clamp(4rem,9vw,8rem)]", className)}>
+      <div className="mx-auto w-full max-w-6xl px-[var(--margin)]">
+        {children}
       </div>
-    </Shell>
+    </section>
+  );
+}
+
+function BandHeading({ children }: { children: ReactNode }) {
+  return (
+    <h2 className="font-display mb-10 line-clamp-2 text-[clamp(1.75rem,1.2rem+2.4vw,3.25rem)] text-balance">
+      {children}
+    </h2>
+  );
+}
+
+function Big({ children }: { children: ReactNode }) {
+  return <span className="text-xl font-semibold">{children}</span>;
+}
+
+function Body({ children }: { children: ReactNode }) {
+  return (
+    <p className="max-w-[65ch] text-base leading-relaxed text-ink">{children}</p>
   );
 }
 

@@ -1,3 +1,4 @@
+import { Wrap } from "@hackhost/ui";
 import { PlatformHeader } from "@/components/platform-header";
 
 export default function PlatformLayout({
@@ -8,7 +9,9 @@ export default function PlatformLayout({
   return (
     <div className="min-h-screen">
       <PlatformHeader />
-      <main>{children}</main>
+      <main>
+        <Wrap className="py-10 md:py-14">{children}</Wrap>
+      </main>
     </div>
   );
 }

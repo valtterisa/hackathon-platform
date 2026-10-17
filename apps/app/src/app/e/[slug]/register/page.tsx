@@ -1,7 +1,7 @@
-import { Button, Input, Label } from "@hackhost/ui";
+import { Button, Field, Form, Input, Notice, PageHeader } from "@hackhost/ui";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Frame, Shell, ShellInner } from "@/components/marketing";
+import { Wordmark } from "@/components/wordmark";
 import { registerForHackathon } from "@/lib/actions/hackathons";
 import { getHackathonBySlug } from "@/lib/rbac";
 import { getSession } from "@/lib/session";
@@ -25,65 +25,56 @@ export default async function RegisterPage({
   const action = registerForHackathon.bind(null, slug);
 
   return (
-    <Shell className="min-h-screen">
-      <header className="border-b border-zinc-100">
-        <ShellInner className="flex h-12 items-center justify-between text-sm">
-          <Link
-            href={`/e/${slug}`}
-            className="cursor-pointer font-semibold tracking-tight"
-          >
-            {event.title}
-          </Link>
-          <a
-            href={marketingUrl("/")}
-            className="text-zinc-500 hover:text-zinc-900"
-          >
-            hackhost
-          </a>
-        </ShellInner>
+    <div className="mx-auto min-h-screen w-full max-w-xl px-[var(--margin)] pb-20">
+      <header className="flex h-16 items-center justify-between gap-4">
+        <Link
+          href={`/e/${slug}`}
+          className="min-w-0 truncate text-base font-medium text-ink hover:underline"
+        >
+          ← {event.title}
+        </Link>
+        <a href={marketingUrl("/")} className="shrink-0 text-ink">
+          <Wordmark />
+        </a>
       </header>
 
-      <ShellInner className="mx-auto max-w-lg space-y-6 py-12">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Register</h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
+      <PageHeader
+        className="mt-12"
+        title="Register"
+        description={
+          <span className="capitalize">
             Join mode: {event.joinMode}
             {event.capacity ? ` · capacity ${event.capacity}` : ""}
-          </p>
-        </div>
+          </span>
+        }
+      />
 
-        {status === "pending" ? (
-          <Frame className="p-4 text-sm">
-            Application submitted. Organisers will review it.
-          </Frame>
-        ) : null}
-        {status === "waitlisted" ? (
-          <Frame className="p-4 text-sm">
-            You are on the waitlist. We will notify you if a spot opens.
-          </Frame>
-        ) : null}
+      {status === "pending" ? (
+        <Notice>Application submitted. Organisers will review it.</Notice>
+      ) : null}
+      {status === "waitlisted" ? (
+        <Notice className="bg-warn">
+          You are on the waitlist. We will notify you if a spot opens.
+        </Notice>
+      ) : null}
 
-        {!status ? (
-          <Frame className="p-5">
-            <form action={action} className="space-y-4">
-              <div>
-                <Label htmlFor="nickname">Display name</Label>
-                <Input
-                  id="nickname"
-                  name="nickname"
-                  defaultValue={session.user.name}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {event.joinMode === "apply"
-                  ? "Submit application"
-                  : "Complete registration"}
-              </Button>
-            </form>
-          </Frame>
-        ) : null}
-      </ShellInner>
-    </Shell>
+      {!status ? (
+        <Form action={action}>
+          <Field label="Display name" htmlFor="nickname">
+            <Input
+              id="nickname"
+              name="nickname"
+              defaultValue={session.user.name}
+              required
+            />
+          </Field>
+          <Button type="submit" size="lg" className="w-full">
+            {event.joinMode === "apply"
+              ? "Submit application"
+              : "Complete registration"}
+          </Button>
+        </Form>
+      ) : null}
+    </div>
   );
 }

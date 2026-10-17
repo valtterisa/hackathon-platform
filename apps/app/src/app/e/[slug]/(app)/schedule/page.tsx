@@ -1,5 +1,6 @@
 import { db } from "@hackhost/db";
 import { scheduleItems } from "@hackhost/db/schema";
+import { EmptyState, List, ListItem, PageHeader } from "@hackhost/ui";
 import { asc, eq } from "drizzle-orm";
 import { assertCanAccessEventApp } from "@/lib/actions/hackathons";
 
@@ -16,30 +17,34 @@ export default async function SchedulePage({
   });
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Schedule</h1>
-      <ul className="mt-6 space-y-2">
-        {items.map((item) => (
-          <li
-            key={item.id}
-            className="flex gap-4 border-b border-[var(--border)] py-3"
-          >
-            <div className="w-40 shrink-0 text-sm text-[var(--muted-foreground)]">
-              {item.startsAt.toLocaleString()}
-            </div>
-            <div>
-              <p className="font-medium">{item.title}</p>
-              <p className="text-sm text-[var(--muted-foreground)]">
-                {item.location}
-                {item.description ? ` · ${item.description}` : ""}
-              </p>
-            </div>
-          </li>
-        ))}
-        {items.length === 0 ? (
-          <p className="text-[var(--muted-foreground)]">Schedule coming soon.</p>
-        ) : null}
-      </ul>
-    </div>
+    <>
+      <PageHeader title="Schedule" description={hackathon.title} />
+      {items.length === 0 ? (
+        <EmptyState title="Schedule coming soon">
+          Organisers haven&apos;t published the timetable yet.
+        </EmptyState>
+      ) : (
+        <List>
+          {items.map((item) => (
+            <ListItem
+              key={item.id}
+              title={item.title}
+              meta={[
+                item.startsAt.toLocaleString(undefined, {
+                  weekday: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                item.location,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            >
+              {item.description}
+            </ListItem>
+          ))}
+        </List>
+      )}
+    </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Label } from "@hackhost/ui";
+import { Button, Field, Form, Input } from "@hackhost/ui";
 import { authClient } from "@hackhost/auth/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -53,15 +53,13 @@ export function AuthForm({
   }
 
   return (
-    <form action={onSubmit} className="w-full space-y-4">
+    <Form action={onSubmit} className="w-full">
       {mode === "signup" ? (
-        <div>
-          <Label htmlFor="name">Name</Label>
+        <Field label="Name" htmlFor="name">
           <Input id="name" name="name" required placeholder="Ada Lovelace" />
-        </div>
+        </Field>
       ) : null}
-      <div>
-        <Label htmlFor="email">Email</Label>
+      <Field label="Email" htmlFor="email">
         <Input
           id="email"
           name="email"
@@ -69,9 +67,12 @@ export function AuthForm({
           required
           placeholder="you@example.com"
         />
-      </div>
-      <div>
-        <Label htmlFor="password">Password</Label>
+      </Field>
+      <Field
+        label="Password"
+        htmlFor="password"
+        hint={mode === "signup" ? "At least 8 characters." : undefined}
+      >
         <Input
           id="password"
           name="password"
@@ -80,9 +81,13 @@ export function AuthForm({
           minLength={8}
           placeholder="••••••••"
         />
-      </div>
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
-      <Button type="submit" className="w-full" disabled={loading}>
+      </Field>
+      {error ? (
+        <p role="alert" className="text-base text-danger">
+          {error}
+        </p>
+      ) : null}
+      <Button type="submit" size="lg" className="w-full" disabled={loading}>
         {loading
           ? "Please wait…"
           : mode === "login"
@@ -90,27 +95,33 @@ export function AuthForm({
             : "Create account"}
       </Button>
       {process.env.NEXT_PUBLIC_GOOGLE_AUTH === "true" ? (
-        <Button type="button" variant="soft" className="w-full" onClick={google}>
+        <Button
+          type="button"
+          variant="secondary"
+          size="lg"
+          className="w-full"
+          onClick={google}
+        >
           Continue with Google
         </Button>
       ) : null}
-      <p className="text-center text-sm text-[var(--muted)]">
+      <p className="text-base text-ink">
         {mode === "login" ? (
           <>
             No account?{" "}
-            <Link href="/signup" className="underline hover:text-[var(--ink)]">
+            <Link href="/signup" className="font-medium underline underline-offset-4">
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="underline hover:text-[var(--ink)]">
+            <Link href="/login" className="font-medium underline underline-offset-4">
               Sign in
             </Link>
           </>
         )}
       </p>
-    </form>
+    </Form>
   );
 }

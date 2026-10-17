@@ -1,134 +1,93 @@
 "use client";
 
-import { cn } from "@hackhost/ui";
-import Link from "next/link";
+import {
+  AppMain,
+  AppShell,
+  Sidebar,
+  SidebarFooter,
+  SidebarFooterLink,
+  SidebarHeader,
+  SidebarItem,
+  SidebarNav,
+  SidebarSwitch,
+  SidebarSwitchItem,
+} from "@hackhost/ui";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEvent } from "./context";
 
-const participantNav = (base: string) =>
-  [
-    ["Home", `${base}/home`],
-    ["Team", `${base}/team`],
-    ["Match", `${base}/match`],
-    ["Challenges", `${base}/challenges`],
-    ["Submit", `${base}/submit`],
-    ["Schedule", `${base}/schedule`],
-  ] as const;
+const participantNav = [
+  ["Home", "/home"],
+  ["Team", "/team"],
+  ["Match", "/match"],
+  ["Challenges", "/challenges"],
+  ["Submit", "/submit"],
+  ["Schedule", "/schedule"],
+] as const;
 
-const organizerNav = (base: string) =>
-  [
-    ["Overview", `${base}/manage`],
-    ["Marketing page", `${base}/manage/page`],
-    ["Settings", `${base}/manage/settings`],
-    ["People", `${base}/manage/people`],
-    ["Teams", `${base}/manage/teams`],
-    ["Challenges", `${base}/manage/challenges`],
-    ["Submissions", `${base}/manage/submissions`],
-    ["Schedule", `${base}/manage/schedule`],
-    ["Announcements", `${base}/manage/announcements`],
-    ["Check-in", `${base}/manage/check-in`],
-    ["Judging", `${base}/manage/judging`],
-  ] as const;
+const organizerNav = [
+  ["Overview", "/manage"],
+  ["Marketing page", "/manage/page"],
+  ["People", "/manage/people"],
+  ["Teams", "/manage/teams"],
+  ["Challenges", "/manage/challenges"],
+  ["Submissions", "/manage/submissions"],
+  ["Schedule", "/manage/schedule"],
+  ["Announcements", "/manage/announcements"],
+  ["Check-in", "/manage/check-in"],
+  ["Judging", "/manage/judging"],
+  ["Settings", "/manage/settings"],
+] as const;
 
 export function EventShell({ children }: { children: ReactNode }) {
-  return (
-    <div data-ui className="flex min-h-dvh bg-white">
-      {children}
-    </div>
-  );
+  return <AppShell>{children}</AppShell>;
 }
 
-export function EventSidebar({
-  mode,
-}: {
-  mode: "participant" | "organizer";
-}) {
+export function EventSidebar({ mode }: { mode: "participant" | "organizer" }) {
   const { slug, title, canOrganize } = useEvent();
   const pathname = usePathname();
   const base = `/e/${slug}`;
-  const items =
-    mode === "organizer" ? organizerNav(base) : participantNav(base);
+  const items = mode === "organizer" ? organizerNav : participantNav;
+  const roots = new Set([`${base}/manage`, `${base}/home`]);
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col bg-[var(--surface)] text-sm">
-      <div className="p-4">
-        <p className="font-semibold leading-tight tracking-tight text-zinc-900">
-          {title}
-        </p>
-        <Link
-          href={base}
-          className="mt-2 block text-xs text-zinc-500 hover:text-zinc-900"
-        >
-          Public page →
-        </Link>
-      </div>
+    <Sidebar>
+      <SidebarHeader title={title}>
+        {mode === "organizer" ? "Organiser" : "Participant"}
+      </SidebarHeader>
 
       {canOrganize ? (
-        <div className="flex text-xs">
-          <Link
-            href={`${base}/home`}
-            className={cn(
-              "flex-1 px-2 py-2.5 text-center font-medium",
-              mode === "participant"
-                ? "bg-zinc-900 text-white"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-            )}
-          >
+        <SidebarSwitch>
+          <SidebarSwitchItem href={`${base}/home`} active={mode === "participant"}>
             Participant
-          </Link>
-          <Link
-            href={`${base}/manage`}
-            className={cn(
-              "flex-1 px-2 py-2.5 text-center font-medium",
-              mode === "organizer"
-                ? "bg-zinc-900 text-white"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900",
-            )}
-          >
+          </SidebarSwitchItem>
+          <SidebarSwitchItem href={`${base}/manage`} active={mode === "organizer"}>
             Organise
-          </Link>
-        </div>
+          </SidebarSwitchItem>
+        </SidebarSwitch>
       ) : null}
 
-      <nav className="flex flex-1 flex-col gap-0.5 p-2">
-        {items.map(([label, href]) => {
+      <SidebarNav>
+        {items.map(([label, path]) => {
+          const href = `${base}${path}`;
           const active =
-            pathname === href ||
-            (href !== `${base}/manage` &&
-              href !== `${base}/home` &&
-              pathname.startsWith(href));
+            pathname === href || (!roots.has(href) && pathname.startsWith(href));
           return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "rounded-[var(--radius)] px-3 py-2",
-                active
-                  ? "bg-white font-medium text-zinc-900"
-                  : "text-zinc-600 hover:bg-white hover:text-zinc-900",
-              )}
-            >
+            <SidebarItem key={href} href={href} active={active}>
               {label}
-            </Link>
+            </SidebarItem>
           );
         })}
-      </nav>
+      </SidebarNav>
 
-      <Link
-        href="/events"
-        className="mt-auto p-3 text-xs text-zinc-500 hover:text-zinc-900"
-      >
-        All events
-      </Link>
-    </aside>
+      <SidebarFooter>
+        <SidebarFooterLink href={base}>Public page</SidebarFooterLink>
+        <SidebarFooterLink href="/events">All events</SidebarFooterLink>
+      </SidebarFooter>
+    </Sidebar>
   );
 }
 
 export function EventMain({ children }: { children: ReactNode }) {
-  return (
-    <main className="flex-1 overflow-auto bg-white">
-      <div className="mx-auto max-w-3xl px-6 py-8">{children}</div>
-    </main>
-  );
+  return <AppMain>{children}</AppMain>;
 }

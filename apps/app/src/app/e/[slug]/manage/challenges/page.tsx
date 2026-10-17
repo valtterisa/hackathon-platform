@@ -1,6 +1,19 @@
 import { db } from "@hackhost/db";
 import { challenges } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  FieldRow,
+  Form,
+  Input,
+  List,
+  ListItem,
+  PageHeader,
+  Panel,
+  Section,
+  Textarea,
+} from "@hackhost/ui";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { createChallenge } from "@/lib/actions/hackathons";
@@ -20,36 +33,51 @@ export default async function ManageChallengesPage({
   const create = createChallenge.bind(null, slug);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Challenges</h1>
-      <form action={create} className="mt-6 max-w-lg space-y-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-        <div>
-          <Label htmlFor="title">Title</Label>
-          <Input id="title" name="title" required />
-        </div>
-        <div>
-          <Label htmlFor="sponsorName">Sponsor</Label>
-          <Input id="sponsorName" name="sponsorName" />
-        </div>
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" />
-        </div>
-        <div>
-          <Label htmlFor="attachmentUrl">Attachment URL</Label>
-          <Input id="attachmentUrl" name="attachmentUrl" />
-        </div>
-        <Button type="submit">Add challenge</Button>
-      </form>
-      <ul className="mt-8 space-y-3">
-        {list.map((ch) => (
-          <li key={ch.id} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
-            <p className="font-medium">{ch.title}</p>
-            <p className="text-sm text-[var(--muted-foreground)]">{ch.sponsorName}</p>
-            <p className="mt-2 text-sm whitespace-pre-wrap">{ch.description}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <PageHeader
+        title="Challenges"
+        description="Sponsor and track challenges participants can pick."
+      />
+
+      <Section title="Add a challenge">
+        <Panel>
+          <Form action={create}>
+            <FieldRow>
+              <Field label="Title" htmlFor="title">
+                <Input id="title" name="title" required />
+              </Field>
+              <Field label="Sponsor" htmlFor="sponsorName">
+                <Input id="sponsorName" name="sponsorName" />
+              </Field>
+            </FieldRow>
+            <Field label="Description" htmlFor="description">
+              <Textarea id="description" name="description" />
+            </Field>
+            <Field label="Attachment URL" htmlFor="attachmentUrl">
+              <Input id="attachmentUrl" name="attachmentUrl" />
+            </Field>
+            <div>
+              <Button type="submit">Add challenge</Button>
+            </div>
+          </Form>
+        </Panel>
+      </Section>
+
+      <Section title="All challenges">
+        {list.length === 0 ? (
+          <EmptyState title="No challenges yet">
+            Add one above and it will appear on the participant challenges page.
+          </EmptyState>
+        ) : (
+          <List>
+            {list.map((ch) => (
+              <ListItem key={ch.id} title={ch.title} meta={ch.sponsorName}>
+                <span className="whitespace-pre-wrap">{ch.description}</span>
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Section>
+    </>
   );
 }

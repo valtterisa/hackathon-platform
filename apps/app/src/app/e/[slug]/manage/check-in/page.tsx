@@ -1,6 +1,17 @@
 import { db } from "@hackhost/db";
 import { checkIns, user } from "@hackhost/db/schema";
-import { Button, Input, Label } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  Form,
+  Input,
+  List,
+  ListItem,
+  PageHeader,
+  Panel,
+  Section,
+} from "@hackhost/ui";
 import { desc, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { checkInUser } from "@/lib/actions/hackathons";
@@ -23,31 +34,44 @@ export default async function ManageCheckInPage({
     .orderBy(desc(checkIns.checkedInAt));
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Check-in</h1>
-      <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-        Enter a participant user id to check them in.
-      </p>
-      <form
-        action={async (formData) => {
-          "use server";
-          await checkInUser(slug, String(formData.get("userId") ?? ""));
-        }}
-        className="mt-6 max-w-md space-y-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-      >
-        <div>
-          <Label htmlFor="userId">User ID</Label>
-          <Input id="userId" name="userId" required placeholder="user_…" />
-        </div>
-        <Button type="submit">Check in</Button>
-      </form>
-      <ul className="mt-8 space-y-2 text-sm">
-        {rows.map(({ checkIn, user: u }) => (
-          <li key={checkIn.id}>
-            {u.name} · {checkIn.checkedInAt.toLocaleString()}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <PageHeader
+        title="Check-in"
+        description="Enter a participant user id to check them in."
+      />
+
+      <Panel>
+        <Form
+          action={async (formData) => {
+            "use server";
+            await checkInUser(slug, String(formData.get("userId") ?? ""));
+          }}
+          className="sm:flex-row sm:items-end"
+        >
+          <Field label="User ID" htmlFor="userId" className="flex-1">
+            <Input id="userId" name="userId" required placeholder="user_…" />
+          </Field>
+          <div>
+            <Button type="submit">Check in</Button>
+          </div>
+        </Form>
+      </Panel>
+
+      <Section title={`Checked in (${rows.length})`}>
+        {rows.length === 0 ? (
+          <EmptyState title="Nobody checked in yet" />
+        ) : (
+          <List>
+            {rows.map(({ checkIn, user: u }) => (
+              <ListItem
+                key={checkIn.id}
+                title={u.name}
+                meta={checkIn.checkedInAt.toLocaleString()}
+              />
+            ))}
+          </List>
+        )}
+      </Section>
+    </>
   );
 }

@@ -1,6 +1,15 @@
 import { db } from "@hackhost/db";
 import { profiles } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  Checkbox,
+  Field,
+  FieldRow,
+  Form,
+  Input,
+  PageHeader,
+  Textarea,
+} from "@hackhost/ui";
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { updateProfile } from "@/lib/actions/hackathons";
@@ -16,42 +25,39 @@ export default async function MePage() {
   });
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl font-semibold">Profile</h1>
-        <SignOutButton />
-      </div>
-      <form action={updateProfile} className="mt-8 space-y-4">
-        <div>
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" defaultValue={session.user.name} />
-        </div>
-        <div>
-          <Label htmlFor="nickname">Nickname</Label>
-          <Input id="nickname" name="nickname" defaultValue={profile?.nickname ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="bio">Bio</Label>
+    <>
+      <PageHeader
+        title="Profile"
+        description="How you show up to organisers and potential teammates."
+        actions={<SignOutButton />}
+      />
+      <Form action={updateProfile}>
+        <FieldRow>
+          <Field label="Name" htmlFor="name">
+            <Input id="name" name="name" defaultValue={session.user.name} />
+          </Field>
+          <Field label="Nickname" htmlFor="nickname">
+            <Input id="nickname" name="nickname" defaultValue={profile?.nickname ?? ""} />
+          </Field>
+        </FieldRow>
+        <Field label="Bio" htmlFor="bio">
           <Textarea id="bio" name="bio" defaultValue={profile?.bio ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="skills">Skills (comma-separated)</Label>
+        </Field>
+        <Field label="Skills" htmlFor="skills" hint="Comma-separated">
           <Input
             id="skills"
             name="skills"
             defaultValue={(profile?.skills as string[] | null)?.join(", ") ?? ""}
           />
-        </div>
-        <div>
-          <Label htmlFor="interests">Interests</Label>
+        </Field>
+        <Field label="Interests" htmlFor="interests">
           <Input
             id="interests"
             name="interests"
             defaultValue={(profile?.interests as string[] | null)?.join(", ") ?? ""}
           />
-        </div>
-        <div>
-          <Label htmlFor="preferredRoles">Preferred roles</Label>
+        </Field>
+        <Field label="Preferred roles" htmlFor="preferredRoles">
           <Input
             id="preferredRoles"
             name="preferredRoles"
@@ -59,29 +65,29 @@ export default async function MePage() {
               (profile?.preferredRoles as string[] | null)?.join(", ") ?? ""
             }
           />
-        </div>
-        <div>
-          <Label htmlFor="githubUrl">GitHub</Label>
-          <Input id="githubUrl" name="githubUrl" defaultValue={profile?.githubUrl ?? ""} />
-        </div>
-        <div>
-          <Label htmlFor="linkedinUrl">LinkedIn</Label>
-          <Input
-            id="linkedinUrl"
-            name="linkedinUrl"
-            defaultValue={profile?.linkedinUrl ?? ""}
-          />
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="lookingForTeam"
-            defaultChecked={profile?.lookingForTeam ?? false}
-          />
+        </Field>
+        <FieldRow>
+          <Field label="GitHub" htmlFor="githubUrl">
+            <Input id="githubUrl" name="githubUrl" defaultValue={profile?.githubUrl ?? ""} />
+          </Field>
+          <Field label="LinkedIn" htmlFor="linkedinUrl">
+            <Input
+              id="linkedinUrl"
+              name="linkedinUrl"
+              defaultValue={profile?.linkedinUrl ?? ""}
+            />
+          </Field>
+        </FieldRow>
+        <Checkbox
+          name="lookingForTeam"
+          defaultChecked={profile?.lookingForTeam ?? false}
+        >
           Looking for a team
-        </label>
-        <Button type="submit">Save profile</Button>
-      </form>
-    </div>
+        </Checkbox>
+        <div>
+          <Button type="submit">Save profile</Button>
+        </div>
+      </Form>
+    </>
   );
 }

@@ -1,9 +1,17 @@
 import { db } from "@hackhost/db";
 import { hackathonMemberships, submissions, teams } from "@hackhost/db/schema";
 import { and, eq, sql } from "drizzle-orm";
-import Link from "next/link";
-import { Frame } from "@/components/marketing";
-import { PageHeading } from "@/components/page-heading";
+import {
+  List,
+  ListLink,
+  PageHeader,
+  Section,
+  Stat,
+  StatGrid,
+  Tag,
+  statusTone,
+} from "@hackhost/ui";
+import { ButtonLink } from "@/components/button-link";
 import { getHackathonBySlug } from "@/lib/rbac";
 
 export default async function ManageOverviewPage({
@@ -52,54 +60,50 @@ export default async function ManageOverviewPage({
 
   return (
     <>
-      <PageHeading title="Overview">
-        <p>
-          Status: <strong>{hackathon.status}</strong> · Join: {hackathon.joinMode}
-        </p>
-      </PageHeading>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-zinc-200 bg-white p-4"
-          >
-            <p className="text-sm text-zinc-500">{stat.label}</p>
-            <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">
-              {stat.value}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <Frame className="mt-8">
-        <ul className="divide-y divide-zinc-100 text-sm">
-          <li>
-            <Link
-              href={`/e/${slug}/manage/page`}
-              className="block px-4 py-3 text-zinc-900 hover:bg-zinc-50"
-            >
-              Edit marketing page
-            </Link>
-          </li>
-          <li>
-            <Link
-              href={`/e/${slug}`}
-              className="block px-4 py-3 text-zinc-900 hover:bg-zinc-50"
-            >
+      <PageHeader
+        title="Overview"
+        description={
+          <span className="flex flex-wrap items-center gap-2">
+            <Tag tone={statusTone(hackathon.status)}>{hackathon.status}</Tag>
+            <Tag>Join: {hackathon.joinMode.replace("_", " ")}</Tag>
+          </span>
+        }
+        actions={
+          <>
+            <ButtonLink href={`/e/${slug}`} variant="secondary">
               View public page
-            </Link>
-          </li>
-          <li>
-            <Link
-              href={`/e/${slug}/manage/people`}
-              className="block px-4 py-3 text-zinc-900 hover:bg-zinc-50"
-            >
-              Manage people
-            </Link>
-          </li>
-        </ul>
-      </Frame>
+            </ButtonLink>
+            <ButtonLink href={`/e/${slug}/manage/page`}>Edit page</ButtonLink>
+          </>
+        }
+      />
+
+      <StatGrid>
+        {stats.map((stat) => (
+          <Stat
+            key={stat.label}
+            label={stat.label}
+            value={stat.value}
+            tone={stat.label === "Pending" && stat.value > 0 ? "accent" : "plain"}
+          />
+        ))}
+      </StatGrid>
+
+      <Section title="Shortcuts">
+        <List>
+          <ListLink
+            href={`/e/${slug}/manage/people`}
+            title="Review registrations"
+            meta={`${pending?.count ?? 0} pending`}
+          />
+          <ListLink href={`/e/${slug}/manage/teams`} title="Teams" />
+          <ListLink href={`/e/${slug}/manage/submissions`} title="Submissions" />
+          <ListLink
+            href={`/e/${slug}/manage/announcements`}
+            title="Post an announcement"
+          />
+        </List>
+      </Section>
     </>
   );
 }

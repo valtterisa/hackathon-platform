@@ -1,6 +1,19 @@
 import { db } from "@hackhost/db";
 import { teamMembers, teams, user } from "@hackhost/db/schema";
-import { Button, Input, Label, Textarea } from "@hackhost/ui";
+import {
+  Button,
+  EmptyState,
+  Field,
+  Form,
+  Input,
+  List,
+  ListItem,
+  Notice,
+  PageHeader,
+  Panel,
+  Section,
+  Textarea,
+} from "@hackhost/ui";
 import { eq } from "drizzle-orm";
 import { assertCanAccessEventApp, createInvite, createTeam } from "@/lib/actions/hackathons";
 import { TeamInviteForm } from "@/components/team-invite-form";
@@ -37,68 +50,78 @@ export default async function TeamPage({
   const create = createTeam.bind(null, slug);
 
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Team</h1>
-      <p className="mt-1 text-[var(--muted-foreground)]">
-        Create a team or join via invite link.
-      </p>
+    <>
+      <PageHeader
+        title="Team"
+        description="Create a team or join via invite link."
+      />
 
       {invite ? (
-        <p className="mt-4 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3 text-sm">
+        <Notice className="mb-10">
           Invite link:{" "}
-          <code className="break-all">
-            {`/invites/${invite}`}
-          </code>
-        </p>
+          <code className="break-all font-mono">{`/invites/${invite}`}</code>
+        </Notice>
       ) : null}
 
-      <form
-        action={create}
-        className="mt-8 max-w-md space-y-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-      >
-        <h2 className="font-medium">Create team</h2>
-        <div>
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" required />
-        </div>
-        <div>
-          <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" />
-        </div>
-        <div>
-          <Label htmlFor="maxMembers">Max members</Label>
-          <Input id="maxMembers" name="maxMembers" type="number" defaultValue={4} />
-        </div>
-        <Button type="submit">Create</Button>
-      </form>
+      <Section title="Create team">
+        <Panel>
+          <Form action={create}>
+            <Field label="Name" htmlFor="name">
+              <Input id="name" name="name" required />
+            </Field>
+            <Field label="Description" htmlFor="description">
+              <Textarea id="description" name="description" />
+            </Field>
+            <Field label="Max members" htmlFor="maxMembers">
+              <Input
+                id="maxMembers"
+                name="maxMembers"
+                type="number"
+                defaultValue={4}
+                className="max-w-32"
+              />
+            </Field>
+            <div>
+              <Button type="submit">Create</Button>
+            </div>
+          </Form>
+        </Panel>
+      </Section>
 
-      <ul className="mt-10 space-y-4">
-        {membersByTeam.map(({ team, members }) => {
-          const isMember = members.some((m) => m.user.id === session.user.id);
-          return (
-            <li
-              key={team.id}
-              className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-medium">{team.name}</p>
-                  <p className="text-sm text-[var(--muted-foreground)]">
-                    {team.description}
-                  </p>
-                  <p className="mt-2 text-sm">
-                    {members.map((m) => m.user.name).join(", ")} ({members.length}/
-                    {team.maxMembers})
-                  </p>
-                </div>
-                {isMember ? (
-                  <TeamInviteForm slug={slug} teamId={team.id} />
-                ) : null}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+      <Section title="Teams">
+        {membersByTeam.length === 0 ? (
+          <EmptyState title="No teams yet">
+            Be the first to create one above.
+          </EmptyState>
+        ) : (
+          <List>
+            {membersByTeam.map(({ team, members }) => {
+              const isMember = members.some(
+                (m) => m.user.id === session.user.id,
+              );
+              return (
+                <ListItem
+                  key={team.id}
+                  title={team.name}
+                  meta={`${members.length}/${team.maxMembers} members`}
+                  aside={
+                    isMember ? (
+                      <TeamInviteForm slug={slug} teamId={team.id} />
+                    ) : null
+                  }
+                >
+                  {team.description ? <p>{team.description}</p> : null}
+                  {members.length > 0 ? (
+                    <p className="text-sm text-muted">
+                      {members.map((m) => m.user.name).join(", ")}
+                    </p>
+                  ) : null}
+                </ListItem>
+              );
+            })}
+          </List>
+        )}
+      </Section>
+    </>
   );
 }
