@@ -9,9 +9,13 @@ import { useState } from "react";
 export function AuthForm({
   mode,
   callbackUrl = "/events",
+  loginHref = "/login",
+  signupHref = "/signup",
 }: {
   mode: "login" | "signup";
   callbackUrl?: string;
+  loginHref?: string;
+  signupHref?: string;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -94,14 +98,14 @@ export function AuthForm({
         {mode === "login" ? (
           <>
             No account?{" "}
-            <Link href="/signup" className="text-[var(--primary)] underline">
+            <Link href={signupHref} className="text-[var(--primary)] underline">
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="text-[var(--primary)] underline">
+            <Link href={loginHref} className="text-[var(--primary)] underline">
               Sign in
             </Link>
           </>

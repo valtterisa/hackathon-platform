@@ -26,9 +26,12 @@ export default async function EventsPage({
     <div className="mx-auto max-w-6xl px-4 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-display text-3xl font-semibold">Events</h1>
+          <h1 className="font-display text-3xl font-semibold">
+            Looking for hackathons?
+          </h1>
           <p className="text-[var(--muted-foreground)]">
-            Discover hackathons and register on their marketing pages.
+            Open an event page to register, then use participant login for that
+            hackathon&apos;s dashboard.
           </p>
         </div>
         <Link href="/events/new">

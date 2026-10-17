@@ -60,8 +60,12 @@ export default async function EventMarketingPage({
     (faq?.content as { items?: { q: string; a: string }[] })?.items ?? [];
 
   const session = await getSession();
-  let ctaHref = `/e/${slug}/register`;
-  let ctaLabel = "Register";
+  let primaryHref = `/e/${slug}/register`;
+  let primaryLabel = "Register";
+  let secondaryHref = `/e/${slug}/login`;
+  let secondaryLabel = "Participant login";
+  let showSecondary = true;
+
   if (session) {
     const membership = await db.query.hackathonMemberships.findFirst({
       where: and(
@@ -71,11 +75,19 @@ export default async function EventMarketingPage({
       ),
     });
     if (membership) {
-      ctaHref =
+      primaryHref =
         membership.role === "organizer"
           ? `/e/${slug}/manage`
           : `/e/${slug}/home`;
-      ctaLabel = "Continue";
+      primaryLabel =
+        membership.role === "organizer" ? "Organizer tools" : "Open dashboard";
+      showSecondary = membership.role === "organizer";
+      secondaryHref = `/e/${slug}/home`;
+      secondaryLabel = "Participant view";
+    } else {
+      primaryHref = `/e/${slug}/register`;
+      primaryLabel = "Complete registration";
+      showSecondary = false;
     }
   }
 
@@ -85,11 +97,20 @@ export default async function EventMarketingPage({
         <Link href="/" className="font-display text-lg font-semibold">
           Hackhost
         </Link>
-        <Link href={ctaHref}>
-          <Button size="sm" variant="accent">
-            {ctaLabel}
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {showSecondary ? (
+            <Link href={secondaryHref}>
+              <Button size="sm" variant="outline">
+                {secondaryLabel}
+              </Button>
+            </Link>
+          ) : null}
+          <Link href={primaryHref}>
+            <Button size="sm" variant="accent">
+              {primaryLabel}
+            </Button>
+          </Link>
+        </div>
       </header>
 
       <section
@@ -111,18 +132,26 @@ export default async function EventMarketingPage({
           {event.tagline ? (
             <p className="mt-4 max-w-2xl text-lg text-white/85">{event.tagline}</p>
           ) : null}
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-white/80">
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-white/80">
             {event.startsAt ? (
-              <span>
+              <span className="mr-2">
                 {event.startsAt.toLocaleString()} –{" "}
                 {event.endsAt?.toLocaleString() ?? ""}
               </span>
             ) : null}
-            <Link href={ctaHref}>
+            <Link href={primaryHref}>
               <Button size="lg" variant="accent">
-                {ctaLabel}
+                {primaryLabel}
               </Button>
             </Link>
+            {showSecondary ? (
+              <Link
+                href={secondaryHref}
+                className="inline-flex h-12 items-center rounded-xl border border-white/40 px-6 text-base font-medium text-white transition hover:bg-white/10"
+              >
+                {secondaryLabel}
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>
@@ -265,12 +294,19 @@ export default async function EventMarketingPage({
           <div>
             <p className="font-medium">{event.title}</p>
             <p className="text-xs text-[var(--muted-foreground)]">
-              Register on Hackhost
+              Register or log in for the participant dashboard
             </p>
           </div>
-          <Link href={ctaHref}>
-            <Button variant="accent">{ctaLabel}</Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {showSecondary ? (
+              <Link href={secondaryHref}>
+                <Button variant="outline">{secondaryLabel}</Button>
+              </Link>
+            ) : null}
+            <Link href={primaryHref}>
+              <Button variant="accent">{primaryLabel}</Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

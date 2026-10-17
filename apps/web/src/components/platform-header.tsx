@@ -14,7 +14,7 @@ export async function PlatformHeader() {
           </Link>
           <nav className="hidden items-center gap-4 text-sm text-[var(--muted-foreground)] sm:flex">
             <Link href="/events" className="hover:text-[var(--foreground)]">
-              Events
+              Browse events
             </Link>
             {session ? (
               <Link href="/me/events" className="hover:text-[var(--foreground)]">

@@ -15,7 +15,7 @@ export default async function RegisterPage({
   const { slug } = await params;
   const { status } = await searchParams;
   const session = await getSession();
-  if (!session) redirect(`/login?next=/e/${slug}/register`);
+  if (!session) redirect(`/e/${slug}/signup`);
 
   const event = await getHackathonBySlug(slug);
   if (!event) redirect("/events");
@@ -28,9 +28,17 @@ export default async function RegisterPage({
         <Link href={`/e/${slug}`} className="font-display text-lg font-semibold">
           {event.title}
         </Link>
-        <Link href="/" className="text-sm text-[var(--muted-foreground)]">
-          Hackhost
-        </Link>
+        <div className="flex items-center gap-3 text-sm">
+          <Link
+            href={`/e/${slug}/login`}
+            className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+          >
+            Already registered? Log in
+          </Link>
+          <Link href="/" className="text-[var(--muted-foreground)]">
+            Hackhost
+          </Link>
+        </div>
       </header>
       <div className="mx-auto max-w-lg px-4 py-12">
         <h1 className="font-display text-3xl font-semibold">Register</h1>

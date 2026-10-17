@@ -853,7 +853,7 @@ export async function exportPeopleCsv(slug: string) {
 
 export async function assertCanAccessEventApp(slug: string) {
   const session = await getSession();
-  if (!session) redirect(`/login?next=/e/${slug}/home`);
+  if (!session) redirect(`/e/${slug}/login?next=/e/${slug}/home`);
   const hackathon = await getHackathonBySlug(slug);
   if (!hackathon) redirect("/events");
   const org = await isOrganizer(hackathon.id, session.user.id);
@@ -863,6 +863,7 @@ export async function assertCanAccessEventApp(slug: string) {
       eq(hackathonMemberships.userId, session.user.id),
     ),
   });
+  // Participant dashboard is membership-gated per event — platform login alone is not enough.
   const active = memberships.some((m) => m.status === "active");
   if (!active && !org) redirect(`/e/${slug}/register`);
   return { session, hackathon, isOrganizer: org, memberships };
