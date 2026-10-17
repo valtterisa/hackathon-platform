@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f7f5;
+  --foreground: #0f1a14;
+  --muted: #d7e2db;
+  --muted-foreground: #4a5c52;
+  --card: #ffffff;
+  --card-foreground: #0f1a14;
+  --primary: #0b6e4f;
+  --primary-foreground: #f3fff8;
+  --accent: #c45d26;
+  --accent-foreground: #fff8f3;
+  --border: #c5d4cb;
+  --ring: #0b6e4f;
+  --sidebar: #0f1a14;
+  --sidebar-foreground: #e8f2ec;
+  --sidebar-muted: #1c2b22;
+  --danger: #b42318;
+  --radius: 0.75rem;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+.dark {
+  --background: #0b1210;
+  --foreground: #e8f2ec;
+  --muted: #1c2b22;
+  --muted-foreground: #9bb0a4;
+  --card: #121c17;
+  --card-foreground: #e8f2ec;
+  --primary: #3ecf8e;
+  --primary-foreground: #062016;
+  --accent: #e8915a;
+  --accent-foreground: #1a0d06;
+  --border: #24352c;
+  --ring: #3ecf8e;
+  --sidebar: #070d0a;
+  --sidebar-foreground: #e8f2ec;
+  --sidebar-muted: #121c17;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --radius-lg: var(--radius);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display);
+}

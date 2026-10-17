@@ -1,0 +1,23 @@
+{
+  "name": "@hackhost/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hackhost/db": "workspace:*",
+    "better-auth": "^1.2.8",
+    "drizzle-orm": "^0.45.4"
+  },
+  "devDependencies": {
+    "@hackhost/config": "workspace:*",
+    "@types/node": "^22.15.30",
+    "typescript": "^5.8.3"
+  }
+}
