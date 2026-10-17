@@ -112,3 +112,39 @@ export async function requireActiveEventMember(
   }
   return membership;
 }
+
+/** For Next layouts/pages: membership snapshot without throwing. */
+export async function getEventAppAccess(slug: string, userId: string) {
+  const hackathon = await getHackathonBySlug(slug);
+  if (!hackathon) return null;
+  const memberships = await db.query.hackathonMemberships.findMany({
+    where: and(
+      eq(hackathonMemberships.hackathonId, hackathon.id),
+      eq(hackathonMemberships.userId, userId),
+    ),
+  });
+  const active = memberships.filter((m) => m.status === "active");
+  const isOrganizer = active.some((m) => m.role === "organizer");
+  return {
+    hackathon,
+    memberships,
+    isOrganizer,
+    hasAccess: active.length > 0,
+  };
+}
+
+export async function requireOrganizerByHackathonId(
+  hackathonId: string,
+  userId: string,
+) {
+  const membership = await db.query.hackathonMemberships.findFirst({
+    where: and(
+      eq(hackathonMemberships.hackathonId, hackathonId),
+      eq(hackathonMemberships.userId, userId),
+      eq(hackathonMemberships.role, "organizer"),
+      eq(hackathonMemberships.status, "active"),
+    ),
+  });
+  if (!membership) throw new Error("FORBIDDEN: organizer required");
+  return membership;
+}

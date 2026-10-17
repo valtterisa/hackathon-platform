@@ -1,17 +1,18 @@
-import { db } from "@hackhost/db";
+/**
+ * Compatibility shims for Next pages. Prefer `@/lib/services/access` in new code.
+ * All checks delegate to the shared access service.
+ */
 import {
-  hackathonMemberships,
-  hackathons,
-} from "@hackhost/db/schema";
+  getHackathonBySlug,
+  requireOrganizerByHackathonId,
+} from "@/lib/services/access";
+import { db } from "@hackhost/db";
+import { hackathonMemberships } from "@hackhost/db/schema";
 import { and, eq } from "drizzle-orm";
 
 export type EventRole = "organizer" | "participant" | "judge" | "mentor";
 
-export async function getHackathonBySlug(slug: string) {
-  return db.query.hackathons.findFirst({
-    where: eq(hackathons.slug, slug),
-  });
-}
+export { getHackathonBySlug };
 
 export async function getMembership(
   hackathonId: string,
@@ -45,11 +46,7 @@ export async function listMemberships(hackathonId: string, userId: string) {
 }
 
 export async function requireOrganizer(hackathonId: string, userId: string) {
-  const membership = await getMembership(hackathonId, userId, "organizer");
-  if (!membership || membership.status !== "active") {
-    throw new Error("FORBIDDEN");
-  }
-  return membership;
+  return requireOrganizerByHackathonId(hackathonId, userId);
 }
 
 export async function requireParticipant(hackathonId: string, userId: string) {

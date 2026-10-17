@@ -6,7 +6,14 @@ The client LLM writes the copy. Tools persist data with the same RBAC as the web
 
 ## Architecture
 
+Domain logic lives once in `apps/web/src/lib/services/*` (access, event-ops, hackathons).  
+MCP tools and Next server actions are thin adapters over that layer.
+
 ```
+Dashboard (server actions) ──┐
+                             ├──► lib/services/* ──► Postgres
+MCP client (OAuth tools) ────┘
+
 Any MCP client
         │  OAuth 2.1 + PKCE (+ CIMD or DCR)
         ▼
@@ -15,10 +22,7 @@ Better Auth  (/api/auth/oauth2/*, /jwks, /.well-known/*)
         ▼
 POST /api/mcp   ← requireMcpAuth + MCP 2026-07-28 (stateless)
         │
-        ├─ Marketing: upload_image, create/update/publish hackathon
-        ├─ Organizer: overview, people, channels, announcements,
-        │             challenges, schedule, check-in, invites, judging
-        └─ Participant: register, teams, match, submissions, DMs, profile
+        └─ same services as the web dashboard (organizer + participant)
 ```
 
 ## Env
