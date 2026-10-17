@@ -2,6 +2,7 @@ import { db } from "@hackhost/db";
 import { announcements, channels } from "@hackhost/db/schema";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
+import { Frame } from "@/components/marketing";
 import { PageHeading } from "@/components/page-heading";
 import { assertCanAccessEventApp } from "@/lib/actions/hackathons";
 
@@ -35,38 +36,45 @@ export default async function EventHomePage({
   return (
     <>
       <PageHeading title="Home">
-        <p className="text-[var(--muted)]">Next steps for {hackathon.title}</p>
+        <p>Next steps for {hackathon.title}</p>
       </PageHeading>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        {links.map(([href, label]) => (
-          <Link
-            key={href}
-            href={href}
-            className="bg-[var(--surface)] px-4 py-3 hover:bg-[var(--field-1)]"
-          >
-            {label}
-          </Link>
-        ))}
-        {isOrganizer ? (
-          <Link
-            href={`/e/${slug}/manage`}
-            className="bg-[var(--accent)] px-4 py-3 text-[var(--accent-ink)]"
-          >
-            Open organizer tools
-          </Link>
-        ) : null}
-      </div>
+      <Frame>
+        <ul className="divide-y divide-zinc-100">
+          {links.map(([href, label]) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="block cursor-pointer px-4 py-3 text-zinc-900 hover:bg-zinc-50"
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+          {isOrganizer ? (
+            <li>
+              <Link
+                href={`/e/${slug}/manage`}
+                className="block cursor-pointer bg-zinc-900 px-4 py-3 text-white hover:bg-zinc-700"
+              >
+                Open organiser tools
+              </Link>
+            </li>
+          ) : null}
+        </ul>
+      </Frame>
 
       {chans.length > 0 ? (
         <section className="mt-10 space-y-3">
-          <h2 className="font-display text-xl uppercase">Channels</h2>
-          <ul className="space-y-2">
+          <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            Channels
+          </h2>
+          <ul className="space-y-2 text-sm">
             {chans.map((c) => (
               <li key={c.id}>
                 <a
                   href={c.url}
-                  className="underline"
+                  className="text-zinc-700 underline hover:text-zinc-900"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -80,15 +88,19 @@ export default async function EventHomePage({
 
       {anns.length > 0 ? (
         <section className="mt-10 space-y-3">
-          <h2 className="font-display text-xl uppercase">Announcements</h2>
-          <ul className="space-y-3">
-            {anns.map((a) => (
-              <li key={a.id} className="bg-[var(--surface)] p-4">
-                <p className="font-medium">{a.title}</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">{a.body}</p>
-              </li>
-            ))}
-          </ul>
+          <h2 className="text-lg font-semibold tracking-tight text-zinc-900">
+            Announcements
+          </h2>
+          <Frame>
+            <ul className="divide-y divide-zinc-100">
+              {anns.map((a) => (
+                <li key={a.id} className="px-4 py-4">
+                  <p className="font-medium text-zinc-900">{a.title}</p>
+                  <p className="mt-1 text-sm text-zinc-600">{a.body}</p>
+                </li>
+              ))}
+            </ul>
+          </Frame>
         </section>
       ) : null}
     </>

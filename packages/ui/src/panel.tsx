@@ -1,23 +1,16 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "./utils";
 
-const fields = {
-  bg: "bg-[var(--bg)] text-[var(--ink)]",
-  surface: "bg-[var(--surface)] text-[var(--ink)]",
-  mint: "bg-[var(--field-2)] text-[var(--field-2-ink)]",
-  orange: "bg-[var(--field-3)] text-[var(--field-3-ink)]",
-  grey: "bg-[var(--field-1)] text-[var(--field-1-ink)]",
-  ink: "bg-[var(--field-4)] text-[var(--field-4-ink)]",
-} as const;
-
-export type Field = keyof typeof fields;
-
 export function Panel({
-  field = "bg",
   className,
   ...props
-}: HTMLAttributes<HTMLElement> & { field?: Field }) {
-  return <section className={cn(fields[field], className)} {...props} />;
+}: HTMLAttributes<HTMLElement>) {
+  return (
+    <section
+      className={cn("rounded-xl border border-zinc-200 bg-white", className)}
+      {...props}
+    />
+  );
 }
 
 export function Wrap({
@@ -26,7 +19,7 @@ export function Wrap({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("mx-auto w-full max-w-6xl px-[var(--margin)]", className)}
+      className={cn("mx-auto w-full max-w-3xl px-[var(--margin)]", className)}
       {...props}
     />
   );
@@ -41,9 +34,9 @@ export function Stack({
     <div
       className={cn(
         "flex flex-col",
-        gap === "sm" && "gap-3",
-        gap === "md" && "gap-6",
-        gap === "lg" && "gap-12",
+        gap === "sm" && "gap-2",
+        gap === "md" && "gap-4",
+        gap === "lg" && "gap-8",
         className,
       )}
       {...props}
@@ -56,7 +49,7 @@ export function Row({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-3", className)} {...props} />
+    <div className={cn("flex flex-wrap items-center gap-2", className)} {...props} />
   );
 }
 
@@ -68,8 +61,7 @@ export function Display({
   return (
     <Tag
       className={cn(
-        "font-display uppercase leading-[0.85] tracking-[-0.02em]",
-        "text-[clamp(2.75rem,2rem+9vw,10rem)]",
+        "font-sans text-[var(--step-display)] font-semibold tracking-tight text-zinc-900",
         className,
       )}
       {...props}
@@ -83,10 +75,7 @@ export function Lead({
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn(
-        "max-w-[40ch] text-[var(--step-lead)] leading-[1.35] text-[inherit]",
-        className,
-      )}
+      className={cn("max-w-[52ch] text-lg leading-relaxed text-zinc-600", className)}
       {...props}
     />
   );

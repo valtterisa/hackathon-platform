@@ -2,54 +2,49 @@
 
 :root {
   --bg: #ffffff;
-  --surface: #f5f5f5;
-  --ink: #000000;
-  --muted: #666666;
-  --accent: #a7ff9c;
-  --accent-ink: #000000;
-  --field-1: #c5c5c5;
-  --field-1-ink: #000000;
-  --field-2: #a7ff9c;
-  --field-2-ink: #000000;
-  --field-3: #ff6831;
-  --field-3-ink: #000000;
-  --field-4: #000000;
-  --field-4-ink: #ffffff;
-  --danger: #b42318;
+  --surface: #f4f4f5;
+  --ink: #18181b;
+  --muted: #71717a;
+  --accent: #18181b;
+  --accent-ink: #ffffff;
+  --line: #e4e4e7;
+  --warn: #b45309;
+  --danger: #dc2626;
+  --link: #2563eb;
 
   --background: var(--bg);
   --foreground: var(--ink);
-  --card: var(--surface);
+  --card: var(--bg);
   --card-foreground: var(--ink);
   --primary: var(--accent);
   --primary-foreground: var(--accent-ink);
   --accent-foreground: var(--accent-ink);
   --muted-foreground: var(--muted);
-  --border: var(--field-1);
-  --ring: var(--ink);
-  --sidebar: var(--field-4);
-  --sidebar-foreground: var(--field-4-ink);
-  --sidebar-muted: #1a1a1a;
+  --border: var(--line);
+  --ring: #a1a1aa;
+  --sidebar: #fafafa;
+  --sidebar-foreground: var(--ink);
+  --sidebar-muted: #ffffff;
 
-  --font-display: "Panchang", ui-sans-serif, system-ui, sans-serif;
-  --font-text: "Switzer", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-text);
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --font-display: var(--font-sans);
+  --font-text: var(--font-sans);
 
-  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
-  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
-  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
-  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
-  --step-display: clamp(3.5rem, 2rem + 11vw, 12rem);
+  --step-small: 0.875rem;
+  --step-body: 1.0625rem;
+  --step-lead: 1.1875rem;
+  --step-head: 1.375rem;
+  --step-display: clamp(2rem, 1.5rem + 2vw, 2.75rem);
 
-  --margin: clamp(1.25rem, 2.2vw, 1.75rem);
-  --gutter: clamp(1rem, 2vw, 2rem);
-  --section: clamp(5rem, 12vw, 13rem);
-  --radius: 0px;
+  --margin: clamp(1.25rem, 4vw, 2.5rem);
+  --gutter: 1.25rem;
+  --section: clamp(3.5rem, 8vw, 5.5rem);
+  --radius: 8px;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --t-press: 140ms;
-  --t-hover: 180ms;
-  --t-reveal: 800ms;
+  --t-hover: 150ms;
+  --t-reveal: 400ms;
 }
 
 @theme inline {
@@ -61,16 +56,17 @@
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-accent: var(--field-3);
-  --color-accent-foreground: var(--field-3-ink);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-ink);
   --color-border: var(--border);
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-muted: var(--sidebar-muted);
   --color-danger: var(--danger);
-  --font-sans: var(--font-text);
+  --font-sans: var(--font-sans);
   --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
   --radius-lg: var(--radius);
 }
 
@@ -89,9 +85,9 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-text);
+  font-family: var(--font-sans);
   font-size: var(--step-body);
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -100,25 +96,25 @@ h2,
 h3,
 .font-display {
   font-family: var(--font-display);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 0.95;
-  text-wrap: balance;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--ink);
 }
 
 p {
-  max-width: 62ch;
+  max-width: 58ch;
+  color: var(--ink);
 }
 
 ::selection {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: #d4d4d8;
+  color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+  outline: 2px solid #a1a1aa;
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -128,13 +124,12 @@ p {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(6px);
   transition:
     opacity var(--t-reveal) var(--ease-out),
     transform var(--t-reveal) var(--ease-out);

@@ -1,102 +1,71 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { Frame } from "@/components/marketing";
 
 const ITEMS = [
   {
-    tab: "Host",
-    q: "Who can create an event?",
-    a: "Anyone with an account. No organiser application queue — publish and run it.",
+    key: "who",
+    q: "Who can create a hackathon?",
+    a: "Anyone signed in. No organiser approval queue — you publish, you run it.",
   },
   {
-    tab: "Join",
+    key: "register",
     q: "How do builders register?",
-    a: "They open your /e/slug page and hit Register. Open, apply, or invite-only.",
+    a: "They open your event page and register. Join modes: open, apply, or invite only.",
   },
   {
-    tab: "Self-host",
-    q: "Can I run it myself?",
-    a: "Yes. Docker Compose plus Postgres. Same codebase as managed cloud.",
+    key: "selfhost",
+    q: "Can I self-host?",
+    a: "Yes. Docker Compose plus the same codebase as managed hosting.",
   },
   {
-    tab: "Teams",
-    q: "Do you do matching?",
-    a: "Inside each event: short skill profiles, teams, invites — not a twenty-question maze.",
+    key: "match",
+    q: "Is there teammate matching?",
+    a: "Per-event skill profiles and teams — without a twenty-question maze.",
   },
   {
-    tab: "Price",
-    q: "What does it cost?",
-    a: "Apache-2.0. Self-host free. Managed billing later if you want hosted.",
+    key: "license",
+    q: "What is the license?",
+    a: "Apache-2.0. Self-host for free.",
   },
 ] as const;
 
-const fields = ["var(--field-2)", "var(--field-3)", "var(--field-1)"] as const;
-
-function Deck({ children }: { children: ReactNode }) {
-  return <div className="relative mx-auto max-w-3xl pb-16">{children}</div>;
-}
-
-function Card({
-  tab,
-  open,
-  offset,
-  color,
-  onOpen,
-  children,
-}: {
-  tab: string;
-  open: boolean;
-  offset: number;
-  color: string;
-  onOpen: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="faq-card relative mb-[-56px] w-full px-5 pb-5 pt-12 text-left last:mb-0"
-      style={{
-        background: color,
-        color: "var(--ink)",
-        marginLeft: offset,
-        zIndex: open ? 20 : offset / 24 + 1,
-        paddingBottom: open ? "2rem" : undefined,
-      }}
-    >
-      <span className="absolute left-0 top-0 flex h-10 w-[200px] items-center px-4">
-        {tab}
-      </span>
-      {children}
-    </button>
-  );
-}
-
 export function HomeFaq() {
-  const [open, setOpen] = useState(0);
+  const [open, setOpen] = useState<string | null>("who");
 
   return (
-    <Deck>
-      {ITEMS.map((item, i) => {
-        const isOpen = open === i;
-        return (
-          <Card
-            key={item.tab}
-            tab={item.tab}
-            open={isOpen}
-            offset={Math.min(i * 24, 96)}
-            color={fields[i % fields.length]!}
-            onOpen={() => setOpen(i)}
-          >
-            <span className="block text-[var(--step-lead)] font-medium">
-              {item.q}
-            </span>
-            {isOpen ? (
-              <p className="mt-3 max-w-[50ch] text-[var(--step-body)]">{item.a}</p>
-            ) : null}
-          </Card>
-        );
-      })}
-    </Deck>
+    <Frame>
+      <ul>
+        {ITEMS.map((item, i) => {
+          const isOpen = open === item.key;
+          return (
+            <li
+              key={item.key}
+              className={i < ITEMS.length - 1 ? "border-b border-zinc-100" : ""}
+            >
+              <button
+                type="button"
+                className="flex w-full cursor-pointer items-start justify-between gap-4 px-4 py-4 text-left hover:bg-zinc-50"
+                onClick={() => setOpen(isOpen ? null : item.key)}
+                aria-expanded={isOpen}
+              >
+                <span>
+                  <span className="font-medium text-zinc-900">{item.q}</span>
+                  {isOpen ? (
+                    <span className="mt-2 block text-sm leading-relaxed text-zinc-600">
+                      {item.a}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="shrink-0 text-zinc-400" aria-hidden>
+                  {isOpen ? "−" : "+"}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </Frame>
   );
 }

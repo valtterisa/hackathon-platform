@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { RevealInit } from "@/components/reveal";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Hackhost",
-    template: "%s · Hackhost",
+    default: "hackhost",
+    template: "%s · hackhost",
   },
   description:
-    "Publish a weekend flyer. Register builders. Run the hackathon — open source.",
+    "Open-source hackathon tooling. Publish event pages, register builders, run teams.",
 };
 
 export default function RootLayout({
@@ -19,18 +20,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://api.fontshare.com" />
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            src="//unpkg.com/react-grab/dist/index.global.js"
+            crossOrigin="anonymous"
+            strategy="beforeInteractive"
+          />
+        )}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
-          href="https://cdn.fontshare.com"
+          href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
         <link
-          href="https://api.fontshare.com/v2/css?f[]=panchang@700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://api.fontshare.com/v2/css?f[]=switzer@400,500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>

@@ -1,9 +1,10 @@
 import { db } from "@hackhost/db";
 import { hackathons } from "@hackhost/db/schema";
-import { Button, Display, Input } from "@hackhost/ui";
+import { Input } from "@hackhost/ui";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
-import { Band, BandInner } from "@/components/marketing";
+import { ButtonLink } from "@/components/button-link";
+import { Frame, Shell, ShellInner } from "@/components/marketing";
 
 export default async function EventsPage({
   searchParams,
@@ -24,15 +25,18 @@ export default async function EventsPage({
     : events;
 
   return (
-    <Band field="bg" className="min-h-[80vh] py-12">
-      <BandInner className="space-y-10">
+    <Shell>
+      <ShellInner className="space-y-8 py-12">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <Display as="h1" className="text-[clamp(2.5rem,8vw,6rem)]">
-            Events
-          </Display>
-          <Link href="/events/new">
-            <Button>Create event</Button>
-          </Link>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              Events
+            </h1>
+            <p className="mt-1 text-sm text-zinc-500">
+              Published hackathons on hackhost
+            </p>
+          </div>
+          <ButtonLink href="/events/new">Create event</ButtonLink>
         </div>
 
         <form className="max-w-md">
@@ -40,40 +44,44 @@ export default async function EventsPage({
             name="q"
             placeholder="Search name or location"
             defaultValue={q}
+            aria-label="Search events"
           />
         </form>
 
-        <ul className="divide-y-0">
-          {filtered.map((event) => (
-            <li key={event.id}>
-              <Link
-                href={`/e/${event.slug}`}
-                className="grid gap-2 py-8 transition hover:bg-[var(--surface)] md:grid-cols-[1fr_auto] md:items-end md:px-4"
-              >
-                <div>
-                  <p className="font-display text-[clamp(1.75rem,4vw,3rem)] uppercase leading-[0.9]">
-                    {event.title}
-                  </p>
-                  {event.tagline ? (
-                    <p className="mt-2 max-w-[50ch] text-[var(--step-body)]">
-                      {event.tagline}
-                    </p>
-                  ) : null}
-                </div>
-                <p className="text-[var(--step-body)] text-[var(--muted)]">
-                  {event.location ?? event.mode}
-                  {event.startsAt
-                    ? ` · ${event.startsAt.toLocaleDateString()}`
-                    : ""}
-                </p>
-              </Link>
-            </li>
-          ))}
+        <Frame>
           {filtered.length === 0 ? (
-            <li className="py-10 text-[var(--muted)]">No published events yet.</li>
-          ) : null}
-        </ul>
-      </BandInner>
-    </Band>
+            <p className="px-4 py-8 text-zinc-500">No published events yet.</p>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {filtered.map((event) => (
+                <li key={event.id}>
+                  <Link
+                    href={`/e/${event.slug}`}
+                    className="block cursor-pointer px-4 py-4 hover:bg-zinc-50 sm:flex sm:items-baseline sm:justify-between sm:gap-4"
+                  >
+                    <div>
+                      <p className="font-semibold tracking-tight text-zinc-900">
+                        {event.title}
+                      </p>
+                      {event.tagline ? (
+                        <p className="mt-1 text-sm text-zinc-600">
+                          {event.tagline}
+                        </p>
+                      ) : null}
+                    </div>
+                    <p className="mt-2 shrink-0 text-sm text-zinc-500 sm:mt-0">
+                      {event.location ?? event.mode}
+                      {event.startsAt
+                        ? ` · ${event.startsAt.toLocaleDateString()}`
+                        : ""}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Frame>
+      </ShellInner>
+    </Shell>
   );
 }

@@ -1,6 +1,7 @@
 import { Button, Input, Label } from "@hackhost/ui";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Frame, Shell, ShellInner } from "@/components/marketing";
 import { registerForHackathon } from "@/lib/actions/hackathons";
 import { getHackathonBySlug } from "@/lib/rbac";
 import { getSession } from "@/lib/session";
@@ -23,50 +24,65 @@ export default async function RegisterPage({
   const action = registerForHackathon.bind(null, slug);
 
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <header className="flex items-center justify-between border-b border-[var(--border)] px-4 py-4">
-        <Link href={`/e/${slug}`} className="font-display text-lg font-semibold">
-          {event.title}
-        </Link>
-        <Link href="/" className="text-sm text-[var(--muted-foreground)]">
-          Hackhost
-        </Link>
+    <Shell className="min-h-screen">
+      <header className="border-b border-zinc-100">
+        <ShellInner className="flex h-12 items-center justify-between text-sm">
+          <Link
+            href={`/e/${slug}`}
+            className="cursor-pointer font-semibold tracking-tight"
+          >
+            {event.title}
+          </Link>
+          <Link
+            href="/"
+            className="text-[var(--muted)] hover:text-[var(--ink)]"
+          >
+            hackhost
+          </Link>
+        </ShellInner>
       </header>
-      <div className="mx-auto max-w-lg px-4 py-12">
-        <h1 className="font-display text-3xl font-semibold">Register</h1>
-        <p className="mt-2 text-[var(--muted-foreground)]">
-          Join mode: {event.joinMode}
-          {event.capacity ? ` · capacity ${event.capacity}` : ""}
-        </p>
+
+      <ShellInner className="mx-auto max-w-lg space-y-6 py-12">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Register</h1>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            Join mode: {event.joinMode}
+            {event.capacity ? ` · capacity ${event.capacity}` : ""}
+          </p>
+        </div>
 
         {status === "pending" ? (
-          <p className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
-            Application submitted. Organizers will review it.
-          </p>
+          <Frame className="p-4 text-sm">
+            Application submitted. Organisers will review it.
+          </Frame>
         ) : null}
         {status === "waitlisted" ? (
-          <p className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--card)] p-4">
+          <Frame className="p-4 text-sm">
             You are on the waitlist. We will notify you if a spot opens.
-          </p>
+          </Frame>
         ) : null}
 
         {!status ? (
-          <form action={action} className="mt-8 space-y-4">
-            <div>
-              <Label htmlFor="nickname">Display name</Label>
-              <Input
-                id="nickname"
-                name="nickname"
-                defaultValue={session.user.name}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" size="lg">
-              {event.joinMode === "apply" ? "Submit application" : "Complete registration"}
-            </Button>
-          </form>
+          <Frame className="p-5">
+            <form action={action} className="space-y-4">
+              <div>
+                <Label htmlFor="nickname">Display name</Label>
+                <Input
+                  id="nickname"
+                  name="nickname"
+                  defaultValue={session.user.name}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                {event.joinMode === "apply"
+                  ? "Submit application"
+                  : "Complete registration"}
+              </Button>
+            </form>
+          </Frame>
         ) : null}
-      </div>
-    </div>
+      </ShellInner>
+    </Shell>
   );
 }

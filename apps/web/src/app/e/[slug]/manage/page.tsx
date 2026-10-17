@@ -2,6 +2,8 @@ import { db } from "@hackhost/db";
 import { hackathonMemberships, submissions, teams } from "@hackhost/db/schema";
 import { and, eq, sql } from "drizzle-orm";
 import Link from "next/link";
+import { Frame } from "@/components/marketing";
+import { PageHeading } from "@/components/page-heading";
 import { getHackathonBySlug } from "@/lib/rbac";
 
 export default async function ManageOverviewPage({
@@ -41,39 +43,63 @@ export default async function ManageOverviewPage({
     .from(submissions)
     .where(eq(submissions.hackathonId, hackathon.id));
 
+  const stats = [
+    { label: "Participants", value: participants?.count ?? 0 },
+    { label: "Pending", value: pending?.count ?? 0 },
+    { label: "Teams", value: teamCount?.count ?? 0 },
+    { label: "Submissions", value: subCount?.count ?? 0 },
+  ];
+
   return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Organizer overview</h1>
-      <p className="mt-1 text-[var(--muted-foreground)]">
-        Status: <strong>{hackathon.status}</strong> · Join: {hackathon.joinMode}
-      </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "Participants", value: participants?.count ?? 0 },
-          { label: "Pending", value: pending?.count ?? 0 },
-          { label: "Teams", value: teamCount?.count ?? 0 },
-          { label: "Submissions", value: subCount?.count ?? 0 },
-        ].map((stat) => (
+    <>
+      <PageHeading title="Overview">
+        <p>
+          Status: <strong>{hackathon.status}</strong> · Join: {hackathon.joinMode}
+        </p>
+      </PageHeading>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
           <div
             key={stat.label}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
+            className="rounded-xl border border-zinc-200 bg-white p-4"
           >
-            <p className="text-sm text-[var(--muted-foreground)]">{stat.label}</p>
-            <p className="font-display text-3xl font-semibold">{stat.value}</p>
+            <p className="text-sm text-zinc-500">{stat.label}</p>
+            <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">
+              {stat.value}
+            </p>
           </div>
         ))}
       </div>
-      <div className="mt-8 flex flex-wrap gap-3 text-sm">
-        <Link href={`/e/${slug}/manage/page`} className="text-[var(--primary)] underline">
-          Edit marketing page
-        </Link>
-        <Link href={`/e/${slug}`} className="text-[var(--primary)] underline">
-          View public page
-        </Link>
-        <Link href={`/e/${slug}/manage/people`} className="text-[var(--primary)] underline">
-          Manage people
-        </Link>
-      </div>
-    </div>
+
+      <Frame className="mt-8">
+        <ul className="divide-y divide-zinc-100 text-sm">
+          <li>
+            <Link
+              href={`/e/${slug}/manage/page`}
+              className="block px-4 py-3 text-zinc-900 hover:bg-zinc-50"
+            >
+              Edit marketing page
+            </Link>
+          </li>
+          <li>
+            <Link
+              href={`/e/${slug}`}
+              className="block px-4 py-3 text-zinc-900 hover:bg-zinc-50"
+            >
+              View public page
+            </Link>
+          </li>
+          <li>
+            <Link
+              href={`/e/${slug}/manage/people`}
+              className="block px-4 py-3 text-zinc-900 hover:bg-zinc-50"
+            >
+              Manage people
+            </Link>
+          </li>
+        </ul>
+      </Frame>
+    </>
   );
 }

@@ -110,7 +110,7 @@ export default async function ManageSettingsPage({
         <form action={addCh} className="mt-4 space-y-2">
           <Input name="label" placeholder="Discord" required />
           <Input name="url" placeholder="https://discord.gg/…" required />
-          <Button type="submit" size="sm" variant="outline">
+          <Button type="submit" size="sm" variant="soft">
             Add channel
           </Button>
         </form>

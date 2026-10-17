@@ -1,78 +1,45 @@
 import { cn } from "@hackhost/ui";
 import type { HTMLAttributes, ReactNode } from "react";
 
-export function Band({
-  field = "bg",
+export function Shell({
   className,
   children,
   ...props
-}: HTMLAttributes<HTMLElement> & {
-  field?: "bg" | "surface" | "mint" | "orange" | "grey" | "ink";
-  children: ReactNode;
-}) {
-  const map = {
-    bg: "bg-[var(--bg)] text-[var(--ink)]",
-    surface: "bg-[var(--surface)] text-[var(--ink)]",
-    mint: "bg-[var(--field-2)] text-[var(--field-2-ink)]",
-    orange: "bg-[var(--field-3)] text-[var(--field-3-ink)]",
-    grey: "bg-[var(--field-1)] text-[var(--field-1-ink)]",
-    ink: "bg-[var(--field-4)] text-[var(--field-4-ink)]",
-  } as const;
-
+}: HTMLAttributes<HTMLElement> & { children: ReactNode }) {
   return (
-    <section className={cn(map[field], className)} {...props}>
+    <section className={cn("bg-white text-zinc-900", className)} {...props}>
       {children}
     </section>
   );
 }
 
-export function BandInner({
+export function ShellInner({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("mx-auto w-full max-w-6xl px-[var(--margin)]", className)}
+      className={cn("mx-auto w-full max-w-3xl px-[var(--margin)]", className)}
       {...props}
     />
   );
 }
 
-export function Photo({
-  src,
-  alt,
+export function Frame({
   className,
-  tilt,
+  children,
 }: {
-  src: string;
-  alt: string;
   className?: string;
-  tilt?: boolean;
+  children: ReactNode;
 }) {
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
+    <div
       className={cn(
-        "block h-full w-full object-cover",
-        tilt && "tilt-photo origin-center",
+        "rounded-xl border border-zinc-200 bg-white",
         className,
       )}
-    />
-  );
-}
-
-export function Mark({ word = "HACKHOST" }: { word?: string }) {
-  return (
-    <div className="hh-footer-mark" aria-hidden>
-      {word.split("").map((letter, i) => (
-        <span key={`${letter}-${i}`}>{letter}</span>
-      ))}
+    >
+      {children}
     </div>
   );
-}
-
-export function Credits({ children }: { children: ReactNode }) {
-  return <p className="credits wrap py-6">{children}</p>;
 }

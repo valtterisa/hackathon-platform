@@ -66,7 +66,7 @@ export default async function ManagePeoplePage({
                     );
                   }}
                 >
-                  <Button size="sm" variant="outline" type="submit">
+                  <Button size="sm" variant="soft" type="submit">
                     Reject
                   </Button>
                 </form>

@@ -1,166 +1,120 @@
-import { Button, Display, Lead } from "@hackhost/ui";
 import Link from "next/link";
-import { FlyerPreview } from "@/components/flyer-preview";
+import { ButtonLink } from "@/components/button-link";
+import { DashboardDemo } from "@/components/dashboard-demo";
 import { HomeFaq } from "@/components/home-faq";
-import { Band, BandInner, Credits, Mark, Photo } from "@/components/marketing";
+import { Frame, Shell, ShellInner } from "@/components/marketing";
+
+const FEATURES = [
+  {
+    title: "Public event pages",
+    body: "A shareable page for every hackathon — dates, prizes, and registration.",
+  },
+  {
+    title: "Self-serve create",
+    body: "Anyone signed in can publish. No organiser approval queue.",
+  },
+  {
+    title: "Run the weekend",
+    body: "Teams, submissions, schedule, and judging in one place.",
+  },
+] as const;
 
 export default function HomePage() {
   return (
-    <>
-      <Band field="mint" className="relative min-h-[100svh] overflow-hidden">
-        <BandInner className="relative z-10 flex min-h-[100svh] flex-col justify-between py-10">
-          <p className="reveal font-display text-xl uppercase">Hackhost</p>
-          <div className="reveal grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-            <Display className="max-w-[12ch]">
-              Ship the
-              <br />
-              weekend flyer
-            </Display>
-            <div className="relative aspect-[4/5] w-full max-w-md justify-self-end lg:-mb-8 lg:translate-x-4">
-              <Photo
-                src="/media/olympia-simplex.jpg"
-                alt="Olympia Simplex typewriter, archival photograph"
-                tilt
-                className="h-full"
-              />
-            </div>
-          </div>
-          <div className="reveal flex flex-wrap items-end justify-between gap-6 pb-4">
-            <Lead>
-              Publish a marketing page. Register builders. Run teams — open
-              source, no organiser gate.
-            </Lead>
-            <Link href="/events/new">
-              <Button size="lg" variant="invert">
-                Create a hackathon
-              </Button>
-            </Link>
-          </div>
-        </BandInner>
-      </Band>
+    <Shell>
+      <ShellInner className="flex flex-col items-center py-16 text-center sm:py-24">
+        <p className="reveal text-sm font-medium text-zinc-500">
+          Open-source hackathon platform
+        </p>
+        <h1 className="reveal mt-4 max-w-[16ch] text-[clamp(2.25rem,5vw,3.25rem)] font-semibold tracking-tight text-zinc-900">
+          Host hackathons without the busywork
+        </h1>
+        <p className="reveal mt-5 max-w-[42ch] text-lg leading-relaxed text-zinc-600">
+          Publish a page, register builders, form teams, and ship — self-host or
+          use managed hosting. Same product either way.
+        </p>
+        <div className="reveal mt-8 flex flex-wrap justify-center gap-3">
+          <ButtonLink href="/events/new">Create a hackathon</ButtonLink>
+          <ButtonLink href="/events" variant="soft">
+            Browse events
+          </ButtonLink>
+        </div>
+      </ShellInner>
 
-      <Band field="ink" className="min-h-[100svh]">
-        <BandInner className="grid min-h-[100svh] content-center gap-0 py-0 lg:grid-cols-3">
-          {[
-            {
-              verb: "Publish",
-              copy: "One shareable /e/slug page — dates, prizes, sticky register.",
-              img: "/media/typewriters.jpg",
-              alt: "Row of typewriters",
-            },
-            {
-              verb: "Register",
-              copy: "Builders join on your site. Open, apply, or invite-only.",
-              img: "/media/typewriter-24111292.jpg",
-              alt: "Close-up of a typewriter",
-            },
-            {
-              verb: "Run",
-              copy: "Sidebars for participants and organizers. Teams, submit, judge.",
-              img: "/media/night-windows.jpg",
-              alt: "Lit office windows at night",
-            },
-          ].map((step) => (
-            <div key={step.verb} className="reveal relative min-h-[70svh] lg:min-h-[100svh]">
-              <Photo src={step.img} alt={step.alt} className="absolute inset-0" />
-              <div className="absolute inset-0 bg-black/45" />
-              <div className="relative flex h-full flex-col justify-between p-6 text-white">
-                <p className="font-display text-[clamp(3rem,12vw,7rem)] uppercase leading-none">
-                  {step.verb}
+      <ShellInner className="pb-16 sm:pb-20">
+        <div className="reveal mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
+              Try the dashboard
+            </h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Click around — participant and organiser views with sample data.
+            </p>
+          </div>
+        </div>
+        <div className="reveal">
+          <DashboardDemo />
+        </div>
+      </ShellInner>
+
+      <ShellInner className="space-y-16 pb-16 sm:pb-20">
+        <section className="reveal space-y-6">
+          <h2 className="text-center text-xl font-semibold tracking-tight text-zinc-900">
+            What you get
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {FEATURES.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-xl border border-zinc-200 bg-white p-5 text-left"
+              >
+                <h3 className="font-semibold tracking-tight text-zinc-900">
+                  {f.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">
+                  {f.body}
                 </p>
-                <p className="max-w-[28ch] text-[var(--step-body)]">{step.copy}</p>
               </div>
-            </div>
-          ))}
-        </BandInner>
-      </Band>
-
-      <Band field="grey" className="py-[var(--section)]">
-        <BandInner className="reveal space-y-10">
-          <Display as="h2" className="text-[clamp(2rem,6vw,5rem)]">
-            Before
-            <br />
-            After
-          </Display>
-          <div className="grid gap-4 md:grid-cols-2">
-            <p className="font-display text-[clamp(3rem,10vw,8rem)] uppercase leading-[0.8] text-black/25">
-              Dashboard?
-            </p>
-            <p className="font-display text-[clamp(3rem,10vw,8rem)] uppercase leading-[0.8]">
-              /e/your-hack
-            </p>
+            ))}
           </div>
-          <Lead>
-            Event context lives in the URL. Participant and organizer tools share
-            one shell — no global nav soup.
-          </Lead>
-        </BandInner>
-      </Band>
+        </section>
 
-      <Band field="surface" className="py-[var(--section)]">
-        <BandInner className="reveal space-y-8">
-          <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
-            Print your title
-          </Display>
-          <FlyerPreview />
-        </BandInner>
-      </Band>
-
-      <Band field="bg" className="py-[var(--section)]">
-        <BandInner className="reveal space-y-10">
-          <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
-            Questions
-          </Display>
+        <section className="reveal space-y-4">
+          <h2 className="text-center text-xl font-semibold tracking-tight text-zinc-900">
+            FAQ
+          </h2>
           <HomeFaq />
-        </BandInner>
-      </Band>
+        </section>
 
-      <Band field="ink" className="min-h-[90svh]">
-        <BandInner className="flex min-h-[90svh] flex-col justify-between py-16">
-          <Display className="reveal max-w-[14ch] text-[clamp(2.5rem,8vw,7rem)]">
-            Host the next weekend
-          </Display>
-          <div className="reveal flex flex-wrap items-end justify-between gap-6">
-            <Lead className="text-[var(--field-4-ink)]">
-              Same app self-hosted or managed. Start with a flyer.
-            </Lead>
-            <Link href="/events/new">
-              <Button size="lg">Create a hackathon</Button>
-            </Link>
-          </div>
-        </BandInner>
-      </Band>
+        <section className="reveal text-center">
+          <Frame className="px-6 py-10">
+            <h2 className="text-xl font-semibold tracking-tight text-zinc-900">
+              Ready when you are
+            </h2>
+            <p className="mx-auto mt-2 text-zinc-600">
+              No organiser gate. Create an event in a minute.
+            </p>
+            <div className="mt-6">
+              <ButtonLink href="/events/new">Create a hackathon</ButtonLink>
+            </div>
+          </Frame>
+        </section>
 
-      <Band field="orange" className="pt-16">
-        <BandInner>
-          <Mark />
-          <div className="mt-14 grid gap-6 pb-10 text-[var(--step-body)] md:grid-cols-4">
-            <Link href="/events" className="underline">
+        <footer className="reveal flex flex-wrap items-center justify-between gap-4 border-t border-zinc-100 pt-8 pb-4 text-sm text-zinc-500">
+          <p>hackhost · Apache-2.0</p>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/events" className="cursor-pointer hover:text-zinc-900">
               Events
             </Link>
-            <Link href="/events/new" className="underline">
-              Create
-            </Link>
-            <Link href="/privacy" className="underline">
+            <Link href="/privacy" className="cursor-pointer hover:text-zinc-900">
               Privacy
             </Link>
-            <Link href="/terms" className="underline">
+            <Link href="/terms" className="cursor-pointer hover:text-zinc-900">
               Terms
             </Link>
           </div>
-        </BandInner>
-        <Credits>
-          Pictures:{" "}
-          <a href="https://commons.wikimedia.org/wiki/File:Olympia_Simplex.jpg">
-            “Olympia Simplex”
-          </a>{" "}
-          by Sammlung der Medien und Wissenschaft, CC BY 4.0;{" "}
-          <a href="https://commons.wikimedia.org/w/index.php?curid=1166376">
-            “Typewriters”
-          </a>{" "}
-          by Mohylek, CC BY-SA 3.0; night windows atmosphere via Unsplash/picsum.
-        </Credits>
-      </Band>
-    </>
+        </footer>
+      </ShellInner>
+    </Shell>
   );
 }

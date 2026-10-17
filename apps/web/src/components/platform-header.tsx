@@ -1,25 +1,28 @@
-import { Button } from "@hackhost/ui";
 import Link from "next/link";
+import { ButtonLink } from "@/components/button-link";
 import { getSession } from "@/lib/session";
 
 export async function PlatformHeader() {
   const session = await getSession();
 
   return (
-    <header className="wrap sticky top-0 z-40 flex h-14 items-center justify-between bg-[var(--bg)] text-[var(--ink)]">
-      <div className="flex items-center gap-8">
+    <header className="wrap sticky top-0 z-40 flex h-14 items-center justify-between border-b border-zinc-100 bg-white/90 text-sm backdrop-blur">
+      <div className="flex items-center gap-6">
         <Link
           href="/"
-          className="font-display text-lg uppercase tracking-tight"
+          className="cursor-pointer text-base font-semibold tracking-tight text-zinc-900"
         >
-          Hackhost
+          hackhost
         </Link>
-        <nav className="hidden items-center gap-5 text-[var(--step-body)] sm:flex">
-          <Link href="/events" className="hover:underline">
+        <nav className="hidden items-center gap-4 text-zinc-600 sm:flex">
+          <Link href="/events" className="cursor-pointer hover:text-zinc-900">
             Events
           </Link>
           {session ? (
-            <Link href="/me/events" className="hover:underline">
+            <Link
+              href="/me/events"
+              className="cursor-pointer hover:text-zinc-900"
+            >
               My events
             </Link>
           ) : null}
@@ -28,25 +31,21 @@ export async function PlatformHeader() {
       <div className="flex items-center gap-2">
         {session ? (
           <>
-            <Link href="/events/new">
-              <Button size="sm">Create event</Button>
-            </Link>
-            <Link href="/me">
-              <Button size="sm" variant="secondary">
-                {session.user.name}
-              </Button>
-            </Link>
+            <ButtonLink href="/events/new" size="sm">
+              Create event
+            </ButtonLink>
+            <ButtonLink href="/me" size="sm" variant="ghost">
+              {session.user.name}
+            </ButtonLink>
           </>
         ) : (
           <>
-            <Link href="/login">
-              <Button size="sm" variant="ghost">
-                Sign in
-              </Button>
-            </Link>
-            <Link href="/signup">
-              <Button size="sm">Sign up</Button>
-            </Link>
+            <ButtonLink href="/login" size="sm" variant="ghost">
+              Sign in
+            </ButtonLink>
+            <ButtonLink href="/signup" size="sm">
+              Sign up
+            </ButtonLink>
           </>
         )}
       </div>

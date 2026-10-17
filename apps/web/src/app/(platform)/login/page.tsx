@@ -1,4 +1,5 @@
 import { AuthForm } from "@/components/auth-form";
+import { Frame, Shell, ShellInner } from "@/components/marketing";
 
 export default async function LoginPage({
   searchParams,
@@ -7,11 +8,15 @@ export default async function LoginPage({
 }) {
   const { next } = await searchParams;
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="mb-6 text-center font-display text-3xl font-semibold">
-        Sign in
-      </h1>
-      <AuthForm mode="login" callbackUrl={next ?? "/events"} />
-    </div>
+    <Shell>
+      <ShellInner className="mx-auto max-w-md space-y-6 py-16">
+        <h1 className="text-center text-2xl font-semibold tracking-tight">
+          Sign in
+        </h1>
+        <Frame className="p-5">
+          <AuthForm mode="login" callbackUrl={next ?? "/events"} />
+        </Frame>
+      </ShellInner>
+    </Shell>
   );
 }

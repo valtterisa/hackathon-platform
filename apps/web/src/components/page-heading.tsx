@@ -1,4 +1,3 @@
-import { Display } from "@hackhost/ui";
 import type { ReactNode } from "react";
 
 export function PageHeading({
@@ -10,13 +9,12 @@ export function PageHeading({
 }) {
   return (
     <header className="mb-8 space-y-2">
-      <Display
-        as="h1"
-        className="text-[clamp(1.75rem,4vw,2.75rem)] normal-case tracking-tight"
-      >
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
         {title}
-      </Display>
-      {children}
+      </h1>
+      {children ? (
+        <div className="text-sm text-zinc-500">{children}</div>
+      ) : null}
     </header>
   );
 }

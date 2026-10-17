@@ -53,7 +53,7 @@ export function AuthForm({
   }
 
   return (
-    <form action={onSubmit} className="mx-auto w-full max-w-md space-y-4">
+    <form action={onSubmit} className="w-full space-y-4">
       {mode === "signup" ? (
         <div>
           <Label htmlFor="name">Name</Label>
@@ -83,25 +83,29 @@ export function AuthForm({
       </div>
       {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
+        {loading
+          ? "Please wait…"
+          : mode === "login"
+            ? "Sign in"
+            : "Create account"}
       </Button>
       {process.env.NEXT_PUBLIC_GOOGLE_AUTH === "true" ? (
-        <Button type="button" variant="outline" className="w-full" onClick={google}>
+        <Button type="button" variant="soft" className="w-full" onClick={google}>
           Continue with Google
         </Button>
       ) : null}
-      <p className="text-center text-sm text-[var(--muted-foreground)]">
+      <p className="text-center text-sm text-[var(--muted)]">
         {mode === "login" ? (
           <>
             No account?{" "}
-            <Link href="/signup" className="text-[var(--primary)] underline">
+            <Link href="/signup" className="underline hover:text-[var(--ink)]">
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="text-[var(--primary)] underline">
+            <Link href="/login" className="underline hover:text-[var(--ink)]">
               Sign in
             </Link>
           </>
