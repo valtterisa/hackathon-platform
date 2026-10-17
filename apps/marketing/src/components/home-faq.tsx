@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Frame } from "@/components/marketing";
 
 const ITEMS = [
   {
@@ -35,37 +34,32 @@ export function HomeFaq() {
   const [open, setOpen] = useState<string | null>("who");
 
   return (
-    <Frame>
-      <ul>
-        {ITEMS.map((item, i) => {
-          const isOpen = open === item.key;
-          return (
-            <li
-              key={item.key}
-              className={i < ITEMS.length - 1 ? "border-b border-zinc-100" : ""}
+    <ul className="space-y-2">
+      {ITEMS.map((item) => {
+        const isOpen = open === item.key;
+        return (
+          <li key={item.key}>
+            <button
+              type="button"
+              className="flex w-full cursor-pointer items-start justify-between gap-4 bg-[var(--surface)] px-4 py-4 text-left hover:bg-zinc-200"
+              onClick={() => setOpen(isOpen ? null : item.key)}
+              aria-expanded={isOpen}
             >
-              <button
-                type="button"
-                className="flex w-full cursor-pointer items-start justify-between gap-4 px-4 py-4 text-left hover:bg-zinc-50"
-                onClick={() => setOpen(isOpen ? null : item.key)}
-                aria-expanded={isOpen}
-              >
-                <span>
-                  <span className="font-medium text-zinc-900">{item.q}</span>
-                  {isOpen ? (
-                    <span className="mt-2 block text-sm leading-relaxed text-zinc-600">
-                      {item.a}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="shrink-0 text-zinc-400" aria-hidden>
-                  {isOpen ? "−" : "+"}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </Frame>
+              <span>
+                <span className="font-medium text-zinc-900">{item.q}</span>
+                {isOpen ? (
+                  <span className="mt-2 block text-sm leading-relaxed text-zinc-600">
+                    {item.a}
+                  </span>
+                ) : null}
+              </span>
+              <span className="shrink-0 text-zinc-400" aria-hidden>
+                {isOpen ? "−" : "+"}
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

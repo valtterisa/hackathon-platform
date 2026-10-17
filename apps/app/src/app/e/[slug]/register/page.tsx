@@ -5,6 +5,7 @@ import { Frame, Shell, ShellInner } from "@/components/marketing";
 import { registerForHackathon } from "@/lib/actions/hackathons";
 import { getHackathonBySlug } from "@/lib/rbac";
 import { getSession } from "@/lib/session";
+import { marketingUrl } from "@/lib/urls";
 
 export default async function RegisterPage({
   params,
@@ -33,12 +34,12 @@ export default async function RegisterPage({
           >
             {event.title}
           </Link>
-          <Link
-            href="/"
-            className="text-[var(--muted)] hover:text-[var(--ink)]"
+          <a
+            href={marketingUrl("/")}
+            className="text-zinc-500 hover:text-zinc-900"
           >
             hackhost
-          </Link>
+          </a>
         </ShellInner>
       </header>
 

@@ -6,40 +6,42 @@ Open-source hackathon platform: market each event, register builders, run teams 
 - **Managed-ready** same codebase (rate limits, platform admin)
 - **Better Auth** (email/password + optional Google)
 - **Per-event RBAC** (organizer / participant / judge / mentor)
-- **No `/dashboard`** — event apps live under `/e/[slug]/…`
+- **Two apps** — marketing site + product dashboard
 
 ## Quick start
 
 ```bash
 pnpm install
 docker compose up -d
-cp .env.example apps/web/.env.local   # or edit the seeded .env.local
+cp .env.example apps/app/.env.local
+cp .env.example apps/marketing/.env.local
 # set BETTER_AUTH_SECRET to a long random string
 pnpm db:push
 pnpm db:seed
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+- Marketing: [http://localhost:3000](http://localhost:3000)
+- App (dashboard): [http://localhost:3001](http://localhost:3001)
 
 Demo user after seed: `demo@hackhost.local` / `demo-password-123`  
-Demo event: `/e/nordic-builders`
+Demo event: [http://localhost:3001/e/nordic-builders](http://localhost:3001/e/nordic-builders)
 
 ## Monorepo
 
 ```
-apps/web          Next.js App Router
-packages/db       Drizzle schema + client
-packages/auth     Better Auth
-packages/ui       Shared UI + CSS tokens
-packages/config   Shared TypeScript config
+apps/marketing   Landing, FAQ, legal (port 3000)
+apps/app         Product: auth, events, /e/[slug] workspaces (port 3001)
+packages/db      Drizzle schema + client
+packages/auth    Better Auth
+packages/ui      Shared UI + CSS tokens
+packages/config  Shared TypeScript config
 ```
 
-## Key routes
+## Key routes (app)
 
 | Path | Purpose |
 |------|---------|
-| `/` | Platform marketing |
 | `/events` | Discovery |
 | `/events/new` | Create hackathon (any signed-in user) |
 | `/e/[slug]` | Event marketing landing + register CTA |

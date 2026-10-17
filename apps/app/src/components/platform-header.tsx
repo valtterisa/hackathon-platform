@@ -1,19 +1,20 @@
 import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
+import { marketingUrl } from "@/lib/urls";
 import { getSession } from "@/lib/session";
 
 export async function PlatformHeader() {
   const session = await getSession();
 
   return (
-    <header className="wrap sticky top-0 z-40 flex h-14 items-center justify-between border-b border-zinc-100 bg-white/90 text-sm backdrop-blur">
+    <header className="wrap sticky top-0 z-40 flex h-14 items-center justify-between bg-white text-sm">
       <div className="flex items-center gap-6">
-        <Link
-          href="/"
+        <a
+          href={marketingUrl("/")}
           className="cursor-pointer text-base font-semibold tracking-tight text-zinc-900"
         >
           hackhost
-        </Link>
+        </a>
         <nav className="hidden items-center gap-4 text-zinc-600 sm:flex">
           <Link href="/events" className="cursor-pointer hover:text-zinc-900">
             Events

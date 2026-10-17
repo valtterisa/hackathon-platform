@@ -1,13 +1,13 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "./utils";
 
-export function Panel({
-  className,
-  ...props
-}: HTMLAttributes<HTMLElement>) {
+export function Panel({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return (
     <section
-      className={cn("rounded-xl border border-zinc-200 bg-white", className)}
+      className={cn(
+        "rounded-[var(--radius)] bg-[var(--surface)]",
+        className,
+      )}
       {...props}
     />
   );
@@ -49,7 +49,10 @@ export function Row({
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)} {...props} />
+    <div
+      className={cn("flex flex-wrap items-center gap-2", className)}
+      {...props}
+    />
   );
 }
 
@@ -61,7 +64,7 @@ export function Display({
   return (
     <Tag
       className={cn(
-        "font-sans text-[var(--step-display)] font-semibold tracking-tight text-zinc-900",
+        "font-sans text-[var(--step-display)] font-semibold tracking-tight text-[var(--ink)]",
         className,
       )}
       {...props}
@@ -75,7 +78,10 @@ export function Lead({
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn("max-w-[52ch] text-lg leading-relaxed text-zinc-600", className)}
+      className={cn(
+        "max-w-[52ch] text-[length:var(--step-lead)] leading-relaxed text-[var(--ink)]",
+        className,
+      )}
       {...props}
     />
   );

@@ -32,7 +32,11 @@ const organizerNav = (base: string) =>
   ] as const;
 
 export function EventShell({ children }: { children: ReactNode }) {
-  return <div className="flex min-h-screen bg-white">{children}</div>;
+  return (
+    <div data-ui className="flex min-h-dvh bg-white">
+      {children}
+    </div>
+  );
 }
 
 export function EventSidebar({
@@ -47,8 +51,8 @@ export function EventSidebar({
     mode === "organizer" ? organizerNav(base) : participantNav(base);
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col border-r border-zinc-200 bg-zinc-50 text-sm">
-      <div className="border-b border-zinc-100 p-4">
+    <aside className="flex w-56 shrink-0 flex-col bg-[var(--surface)] text-sm">
+      <div className="p-4">
         <p className="font-semibold leading-tight tracking-tight text-zinc-900">
           {title}
         </p>
@@ -61,7 +65,7 @@ export function EventSidebar({
       </div>
 
       {canOrganize ? (
-        <div className="flex border-b border-zinc-100 text-xs">
+        <div className="flex text-xs">
           <Link
             href={`${base}/home`}
             className={cn(
@@ -99,10 +103,10 @@ export function EventSidebar({
               key={href}
               href={href}
               className={cn(
-                "rounded-lg px-3 py-2",
+                "rounded-[var(--radius)] px-3 py-2",
                 active
-                  ? "bg-white font-medium text-zinc-900 shadow-sm"
-                  : "text-zinc-600 hover:bg-white/80 hover:text-zinc-900",
+                  ? "bg-white font-medium text-zinc-900"
+                  : "text-zinc-600 hover:bg-white hover:text-zinc-900",
               )}
             >
               {label}
@@ -113,7 +117,7 @@ export function EventSidebar({
 
       <Link
         href="/events"
-        className="border-t border-zinc-100 p-3 text-xs text-zinc-500 hover:text-zinc-900"
+        className="mt-auto p-3 text-xs text-zinc-500 hover:text-zinc-900"
       >
         All events
       </Link>

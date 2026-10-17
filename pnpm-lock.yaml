@@ -15,7 +15,7 @@ importers:
         specifier: ^5.8.3
         version: 5.9.3
 
-  apps/web:
+  apps/app:
     dependencies:
       '@hackhost/auth':
         specifier: workspace:*
@@ -63,6 +63,43 @@ importers:
       react-grab:
         specifier: ^0.2.0
         version: 0.2.0(react@19.3.1)
+      tailwindcss:
+        specifier: ^4.1.8
+        version: 4.3.3
+      typescript:
+        specifier: ^5.8.3
+        version: 5.9.3
+
+  apps/marketing:
+    dependencies:
+      '@hackhost/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      next:
+        specifier: ^15.3.3
+        version: 15.5.28(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react:
+        specifier: ^19.1.0
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.3.1(react@19.3.1)
+    devDependencies:
+      '@hackhost/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@tailwindcss/postcss':
+        specifier: ^4.1.8
+        version: 4.3.3
+      '@types/node':
+        specifier: ^22.15.30
+        version: 22.20.5
+      '@types/react':
+        specifier: ^19.1.6
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.1.5
+        version: 19.3.0(@types/react@19.3.0)
       tailwindcss:
         specifier: ^4.1.8
         version: 4.3.3

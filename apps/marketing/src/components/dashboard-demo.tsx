@@ -1,7 +1,8 @@
 "use client";
 
-import { cn } from "@hackhost/ui";
+import { Button, Input, cn } from "@hackhost/ui";
 import { useState, type ReactNode } from "react";
+import { Frame } from "@/components/marketing";
 
 type Mode = "participant" | "organizer";
 type ParticipantView =
@@ -140,9 +141,9 @@ function DemoList({
   items: { title: string; meta?: string; body?: string }[];
 }) {
   return (
-    <ul className="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white">
+    <ul className="space-y-2">
       {items.map((item) => (
-        <li key={item.title} className="px-4 py-3">
+        <li key={item.title} className="bg-[var(--surface)] px-4 py-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="font-medium text-zinc-900">{item.title}</p>
             {item.meta ? (
@@ -174,13 +175,13 @@ function ParticipantHome({
   return (
     <>
       <DemoHeading title="Home">Next steps for {EVENT.title}</DemoHeading>
-      <ul className="mb-6 divide-y divide-zinc-100 rounded-xl border border-zinc-200">
+      <ul className="mb-6 space-y-2">
         {shortcuts.map((s) => (
           <li key={s.id}>
             <button
               type="button"
               onClick={() => onGo(s.id)}
-              className="flex w-full cursor-pointer items-center justify-between px-4 py-3 text-left text-sm text-zinc-900 hover:bg-zinc-50"
+              className="flex w-full cursor-pointer items-center justify-between bg-[var(--surface)] px-4 py-3 text-left text-sm text-zinc-900 hover:bg-zinc-200"
             >
               {s.label}
               <span className="text-zinc-400">→</span>
@@ -219,12 +220,9 @@ function ParticipantViews({
               meta: m.role,
             }))}
           />
-          <button
-            type="button"
-            className="mt-4 cursor-pointer rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50"
-          >
+          <Button type="button" variant="soft" className="mt-4">
             Invite teammate
-          </button>
+          </Button>
         </>
       );
     case "match":
@@ -259,41 +257,27 @@ function ParticipantViews({
       return (
         <>
           <DemoHeading title="Submit">Ship before Sunday 14:00</DemoHeading>
-          <div className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4">
+          <Frame className="space-y-3 p-4">
             <label className="block text-sm">
               <span className="mb-1.5 block font-medium text-zinc-700">
                 Project name
               </span>
-              <input
-                defaultValue="Heatmap Helsinki"
-                className="h-10 w-full rounded-lg border border-zinc-200 px-3 text-sm text-zinc-900"
-              />
+              <Input defaultValue="Heatmap Helsinki" />
             </label>
             <label className="block text-sm">
               <span className="mb-1.5 block font-medium text-zinc-700">
                 Repo URL
               </span>
-              <input
-                defaultValue="https://github.com/ferry-stack/heatmap"
-                className="h-10 w-full rounded-lg border border-zinc-200 px-3 text-sm text-zinc-900"
-              />
+              <Input defaultValue="https://github.com/ferry-stack/heatmap" />
             </label>
             <label className="block text-sm">
               <span className="mb-1.5 block font-medium text-zinc-700">
                 Demo URL
               </span>
-              <input
-                placeholder="https://"
-                className="h-10 w-full rounded-lg border border-zinc-200 px-3 text-sm text-zinc-900 placeholder:text-zinc-400"
-              />
+              <Input placeholder="https://" />
             </label>
-            <button
-              type="button"
-              className="cursor-pointer rounded-lg border border-zinc-900 bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:border-zinc-700 hover:bg-zinc-700"
-            >
-              Save draft
-            </button>
-          </div>
+            <Button type="button">Save draft</Button>
+          </Frame>
         </>
       );
     case "schedule":
@@ -323,7 +307,7 @@ function OrganizerViews({ view }: { view: OrganizerView }) {
             {MOCK.stats.map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-zinc-200 bg-white p-4"
+                className="bg-[var(--surface)] p-4"
               >
                 <p className="text-sm text-zinc-500">{s.label}</p>
                 <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">
@@ -413,22 +397,25 @@ export function DashboardDemo() {
   const activeId = mode === "participant" ? participantView : organizerView;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-zinc-100 bg-zinc-50 px-4 py-2.5 text-xs text-zinc-500">
+    <div
+      data-ui
+      className="overflow-hidden bg-[var(--surface)]"
+    >
+      <div className="flex items-center justify-between gap-3 bg-zinc-100 px-4 py-2.5 text-xs text-zinc-500">
         <span>Interactive demo · mock data</span>
         <span className="hidden sm:inline">{EVENT.title}</span>
       </div>
 
-      <div className="flex min-h-[420px] flex-col sm:flex-row">
-        <aside className="flex w-full shrink-0 flex-col border-b border-zinc-100 bg-zinc-50 sm:w-48 sm:border-b-0 sm:border-r">
-          <div className="border-b border-zinc-100 p-3">
+      <div className="flex min-h-[420px] flex-col bg-white sm:flex-row">
+        <aside className="flex w-full shrink-0 flex-col bg-[var(--surface)] sm:w-56">
+          <div className="p-4">
             <p className="truncate text-sm font-semibold text-zinc-900">
               {EVENT.title}
             </p>
             <p className="mt-0.5 truncate text-xs text-zinc-500">{EVENT.when}</p>
           </div>
 
-          <div className="flex border-b border-zinc-100 text-xs">
+          <div className="flex text-xs">
             <button
               type="button"
               onClick={() => setMode("participant")}
@@ -470,10 +457,10 @@ export function DashboardDemo() {
                     }
                   }}
                   className={cn(
-                    "shrink-0 cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition-colors",
+                    "shrink-0 cursor-pointer rounded-[var(--radius)] px-3 py-2 text-left text-sm transition-colors",
                     active
-                      ? "bg-white font-medium text-zinc-900 shadow-sm"
-                      : "text-zinc-600 hover:bg-white/80 hover:text-zinc-900",
+                      ? "bg-white font-medium text-zinc-900"
+                      : "text-zinc-600 hover:bg-white hover:text-zinc-900",
                   )}
                 >
                   {item.label}

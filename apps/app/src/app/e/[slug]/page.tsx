@@ -9,11 +9,11 @@ import {
   tracks,
 } from "@hackhost/db/schema";
 import { and, asc, eq } from "drizzle-orm";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/button-link";
 import { Frame, Shell, ShellInner } from "@/components/marketing";
 import { getSession } from "@/lib/session";
+import { marketingUrl } from "@/lib/urls";
 
 export default async function EventMarketingPage({
   params,
@@ -97,12 +97,12 @@ export default async function EventMarketingPage({
     <Shell className="min-h-screen pb-20">
       <header className="border-b border-zinc-100">
         <ShellInner className="flex h-14 items-center justify-between text-sm">
-          <Link
-            href="/"
+          <a
+            href={marketingUrl("/")}
             className="cursor-pointer font-semibold tracking-tight text-zinc-900"
           >
             hackhost
-          </Link>
+          </a>
           <ButtonLink href={ctaHref} size="sm">
             {ctaLabel}
           </ButtonLink>

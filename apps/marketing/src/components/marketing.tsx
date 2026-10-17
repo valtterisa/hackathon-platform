@@ -34,10 +34,7 @@ export function Frame({
 }) {
   return (
     <div
-      className={cn(
-        "rounded-xl border border-zinc-200 bg-white",
-        className,
-      )}
+      className={cn("rounded-[var(--radius)] bg-[var(--surface)]", className)}
     >
       {children}
     </div>
