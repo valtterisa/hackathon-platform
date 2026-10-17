@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@hackhost/db";
 import { hackathons } from "@hackhost/db/schema";
-import { generateCoverImage, generateHackathonBrief } from "@/lib/ai/hackathon";
+import { storeImageUpload } from "@/lib/uploads/storage";
 import {
   createHackathonForUser,
   getHackathonBundle,
@@ -31,60 +31,59 @@ function errorResult(error: unknown) {
   };
 }
 
+/**
+ * Hackhost MCP server for any MCP-capable AI client (Cursor, Claude, ChatGPT
+ * apps, custom agents, etc.). The client LLM authors content; tools persist it.
+ */
 export function createHackhostMcpHandler(getUserId: () => string) {
   return createMcpHandler(
     () => {
       const server = new McpServer({
         name: "hackhost",
-        version: "0.1.0",
+        version: "0.2.0",
       });
 
       server.registerTool(
-        "generate_hackathon_brief",
+        "upload_image",
         {
           description:
-            "Use ChatGPT to draft a full hackathon package: copy, tracks, prizes, FAQ, schedule, and a cover image prompt.",
+            "Upload an image (base64 or data URL) for use as a hackathon cover, sponsor logo, or attachment. Returns a public URL. Optionally set it as coverUrl on an owned hackathon via `slug`.",
           inputSchema: z.object({
-            idea: z.string().describe("One-sentence hackathon idea"),
-            city: z.string().optional(),
-            startsAt: z.string().optional().describe("ISO-8601 start"),
-            endsAt: z.string().optional().describe("ISO-8601 end"),
-            vibe: z.string().optional(),
-          }),
-        },
-        async (args) => {
-          try {
-            const brief = await generateHackathonBrief(args);
-            return textResult(brief);
-          } catch (error) {
-            return errorResult(error);
-          }
-        },
-      );
-
-      server.registerTool(
-        "generate_cover_image",
-        {
-          description:
-            "Generate a full-bleed hackathon cover image from a prompt (OpenAI Images).",
-          inputSchema: z.object({
-            prompt: z.string(),
+            dataBase64: z
+              .string()
+              .describe("Raw base64 bytes or a data:image/...;base64,... URL"),
+            mimeType: z
+              .enum(["image/jpeg", "image/png", "image/webp", "image/gif"])
+              .describe("Image MIME type"),
+            filename: z.string().optional().describe("Original filename hint"),
             slug: z
               .string()
               .optional()
-              .describe("If set, also save coverUrl on this owned hackathon"),
+              .describe(
+                "If set, also update this owned hackathon's coverUrl to the uploaded URL",
+              ),
           }),
         },
-        async ({ prompt, slug }) => {
+        async ({ dataBase64, mimeType, filename, slug }) => {
           try {
-            const image = await generateCoverImage(prompt);
+            const userId = getUserId();
+            const stored = await storeImageUpload({
+              userId,
+              dataBase64,
+              mimeType,
+              filename,
+            });
+
             if (slug) {
-              const userId = getUserId();
               await updateHackathonMarketingForUser(userId, slug, {
-                coverUrl: image.url,
+                coverUrl: stored.url,
               });
             }
-            return textResult(image);
+
+            return textResult({
+              ...stored,
+              attachedToSlug: slug ?? null,
+            });
           } catch (error) {
             return errorResult(error);
           }
@@ -95,16 +94,16 @@ export function createHackhostMcpHandler(getUserId: () => string) {
         "create_hackathon",
         {
           description:
-            "Create a draft hackathon (and optional marketing package) for the authenticated organizer. Set withAi+idea to generate everything with ChatGPT (title optional then).",
+            "Create a draft hackathon for the authenticated organizer. The AI client should supply title, copy, tracks, prizes, schedule, etc. Upload covers first with upload_image, then pass coverUrl.",
           inputSchema: z.object({
-            title: z
-              .string()
-              .optional()
-              .describe("Required unless withAi is true"),
+            title: z.string(),
             slug: z.string().optional(),
             tagline: z.string().optional(),
             description: z.string().optional(),
-            coverUrl: z.string().optional(),
+            coverUrl: z
+              .string()
+              .optional()
+              .describe("Public URL from upload_image (or any https URL)"),
             location: z.string().optional(),
             mode: z.enum(["in_person", "online", "hybrid"]).optional(),
             joinMode: z.enum(["open", "apply", "invite_only"]).optional(),
@@ -132,6 +131,7 @@ export function createHackhostMcpHandler(getUserId: () => string) {
                   name: z.string(),
                   tier: z.string().optional(),
                   url: z.string().optional(),
+                  logoUrl: z.string().optional(),
                 }),
               )
               .optional(),
@@ -163,89 +163,32 @@ export function createHackhostMcpHandler(getUserId: () => string) {
                 }),
               )
               .optional(),
-            withAi: z
-              .boolean()
-              .optional()
-              .describe(
-                "If true, generate a full brief from `idea` then create the event",
-              ),
-            idea: z
-              .string()
-              .optional()
-              .describe("Required when withAi is true"),
-            city: z.string().optional(),
-            vibe: z.string().optional(),
-            generateCover: z
-              .boolean()
-              .optional()
-              .describe("When withAi, also generate and attach a cover image"),
           }),
         },
         async (args) => {
           try {
             const userId = getUserId();
-            let payload = { ...args };
-
-            if (args.withAi) {
-              if (!args.idea) {
-                throw new Error("idea is required when withAi is true");
-              }
-              const brief = await generateHackathonBrief({
-                idea: args.idea,
-                city: args.city,
-                startsAt: args.startsAt,
-                endsAt: args.endsAt,
-                vibe: args.vibe,
-              });
-              payload = {
-                ...brief,
-                ...args,
-                title: args.title || brief.title,
-                tagline: args.tagline ?? brief.tagline,
-                description: args.description ?? brief.description,
-                location: args.location ?? brief.location,
-                mode: args.mode ?? brief.mode,
-                joinMode: args.joinMode ?? brief.joinMode,
-                highlights: args.highlights ?? brief.highlights,
-                faq: args.faq ?? brief.faq,
-                prizes: args.prizes ?? brief.prizes,
-                sponsors: args.sponsors ?? brief.sponsors,
-                tracks: args.tracks ?? brief.tracks,
-                challenges: args.challenges ?? brief.challenges,
-                schedule: args.schedule ?? brief.schedule,
-              };
-
-              if (args.generateCover !== false) {
-                const image = await generateCoverImage(brief.coverPrompt);
-                payload.coverUrl = args.coverUrl ?? image.url;
-              }
-            }
-
-            if (!payload.title?.trim()) {
-              throw new Error("title is required (or set withAi + idea)");
-            }
-
             const created = await createHackathonForUser(userId, {
-              title: payload.title,
-              slug: payload.slug,
-              tagline: payload.tagline,
-              description: payload.description,
-              coverUrl: payload.coverUrl,
-              location: payload.location,
-              mode: payload.mode,
-              joinMode: payload.joinMode,
-              capacity: payload.capacity,
-              startsAt: payload.startsAt,
-              endsAt: payload.endsAt,
-              status: payload.status ?? "draft",
-              codeOfConduct: payload.codeOfConduct,
-              highlights: payload.highlights,
-              faq: payload.faq,
-              prizes: payload.prizes,
-              sponsors: payload.sponsors,
-              tracks: payload.tracks,
-              challenges: payload.challenges,
-              schedule: payload.schedule,
+              title: args.title,
+              slug: args.slug,
+              tagline: args.tagline,
+              description: args.description,
+              coverUrl: args.coverUrl,
+              location: args.location,
+              mode: args.mode,
+              joinMode: args.joinMode,
+              capacity: args.capacity,
+              startsAt: args.startsAt,
+              endsAt: args.endsAt,
+              status: args.status ?? "draft",
+              codeOfConduct: args.codeOfConduct,
+              highlights: args.highlights,
+              faq: args.faq,
+              prizes: args.prizes,
+              sponsors: args.sponsors,
+              tracks: args.tracks,
+              challenges: args.challenges,
+              schedule: args.schedule,
             });
 
             const appUrl =
@@ -268,7 +211,7 @@ export function createHackhostMcpHandler(getUserId: () => string) {
         "update_hackathon",
         {
           description:
-            "Update marketing/settings for a hackathon you organize.",
+            "Update marketing/settings for a hackathon you organize. Use upload_image first when changing covers.",
           inputSchema: z.object({
             slug: z.string(),
             title: z.string().optional(),
@@ -353,7 +296,8 @@ export function createHackhostMcpHandler(getUserId: () => string) {
       server.registerTool(
         "list_my_hackathons",
         {
-          description: "List hackathons where the authenticated user is active.",
+          description:
+            "List hackathons where the authenticated user is an active member.",
           inputSchema: z.object({}),
         },
         async () => {

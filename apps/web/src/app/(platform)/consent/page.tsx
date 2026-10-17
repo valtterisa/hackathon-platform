@@ -41,7 +41,8 @@ export default async function ConsentPage({
     <div className="mx-auto max-w-lg px-4 py-16">
       <h1 className="font-display text-3xl font-semibold">Authorize access</h1>
       <p className="mt-2 text-[var(--muted-foreground)]">
-        An MCP client wants to create and manage hackathons on your behalf.
+        An MCP AI client wants to create hackathons and upload images on your
+        behalf.
       </p>
       <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6">
         <OAuthConsentForm

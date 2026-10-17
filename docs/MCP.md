@@ -1,33 +1,25 @@
-# Hackhost MCP + AI hackathon creation
+# Hackhost MCP
 
-Cutting-edge stack: **Better Auth MCP OAuth 2.1** (RFC 9728 / CIMD / optional DCR) + **MCP 2026-07-28** (stateless `POST` only) + **Next.js App Router** tools that create full hackathons with ChatGPT + images.
+Hackhost exposes a **remote MCP server** so **any MCP-capable AI client** (Cursor, Claude, ChatGPT apps, custom agents, etc.) can create and manage hackathons — including **uploading cover images**.
+
+The client LLM writes the copy. Tools only persist data.
 
 ## Architecture
 
 ```
-MCP client (ChatGPT / Cursor / Claude)
+Any MCP client
         │  OAuth 2.1 + PKCE (+ CIMD or DCR)
         ▼
 Better Auth  (/api/auth/oauth2/*, /jwks, /.well-known/*)
         │  resource-bound access token (aud = MCP_RESOURCE_URL)
         ▼
-POST /api/mcp   ← requireMcpAuth + @modelcontextprotocol/server
+POST /api/mcp   ← requireMcpAuth + MCP 2026-07-28 (stateless)
         │
-        ├─ generate_hackathon_brief  → OpenAI chat
-        ├─ generate_cover_image      → OpenAI images
-        ├─ create_hackathon          → Postgres (Drizzle)
+        ├─ upload_image              → disk + /api/uploads/…
+        ├─ create_hackathon          → Postgres
         ├─ update_hackathon / publish_hackathon
         └─ list_my_hackathons / get_hackathon
 ```
-
-Same domain services also power cookie-session API routes:
-
-| Route | Purpose |
-|-------|---------|
-| `POST /api/ai/hackathon/generate` | Draft brief JSON (session auth) |
-| `POST /api/ai/hackathon/cover` | Cover image (session auth) |
-| `POST /api/ai/hackathon/create` | Brief + optional cover + create draft |
-| `POST /api/mcp` | OAuth-protected MCP tools |
 
 ## Env
 
@@ -35,30 +27,26 @@ Same domain services also power cookie-session API routes:
 BETTER_AUTH_SECRET=...
 BETTER_AUTH_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-# Defaults to ${BETTER_AUTH_URL}/api/mcp
 MCP_RESOURCE_URL=http://localhost:3000/api/mcp
-OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4.1
-OPENAI_IMAGE_MODEL=gpt-image-1
+# Optional: where uploaded images are stored (default: apps/web/.data/uploads)
+UPLOAD_DIR=
 ```
-
-After pulling schema changes:
 
 ```bash
 pnpm db:push
 ```
 
-## Connect an MCP client
+## Connect any MCP client
 
 1. Sign up / sign in on Hackhost.
-2. Point the client at the MCP resource: `http://localhost:3000/api/mcp` (or your prod URL).
+2. Point the client at: `https://your-host/api/mcp` (local: `http://localhost:3000/api/mcp`).
 3. Client discovers:
    - `/.well-known/oauth-protected-resource/api/mcp`
-   - authorization server metadata under `/.well-known/oauth-authorization-server/api/auth`
-4. User lands on `/login` then `/consent` (scopes include `hackhost`).
+   - `/.well-known/oauth-authorization-server/api/auth`
+4. User completes `/login` → `/consent` (`hackhost` scope).
 5. Client calls tools with the audience-bound bearer token.
 
-### Cursor `mcp.json` sketch
+### Cursor `mcp.json`
 
 ```json
 {
@@ -70,31 +58,41 @@ pnpm db:push
 }
 ```
 
-Cursor/Claude that still use Dynamic Client Registration are supported (`allowDynamicClientRegistration` + `infer` application type). Prefer CIMD (`metadataProfile: "mcp-2026-07-28"`) when the client supports it.
+DCR is enabled for clients that still need it (`infer` application type). Prefer CIMD (`metadataProfile: "mcp-2026-07-28"`) when available.
 
 ## Tools
 
 | Tool | Notes |
 |------|-------|
-| `generate_hackathon_brief` | ChatGPT package: copy, FAQ, tracks, prizes, schedule, cover prompt |
-| `generate_cover_image` | Image model; optional `slug` to persist `coverUrl` |
-| `create_hackathon` | Manual fields and/or `withAi: true` + `idea` (+ `generateCover`) |
-| `update_hackathon` | Organizer-only marketing/settings patch |
+| `upload_image` | Base64 / data-URL image → public `/api/uploads/...` URL; optional `slug` sets `coverUrl` |
+| `create_hackathon` | Create draft with full marketing package; pass `coverUrl` from `upload_image` |
+| `update_hackathon` | Organizer patch (including `coverUrl`) |
 | `publish_hackathon` / `set_hackathon_status` | Lifecycle |
-| `list_my_hackathons` | Memberships for the token subject |
+| `list_my_hackathons` | Active memberships for the token subject |
 | `get_hackathon` | Full bundle; `requireOrganizer` optional |
 
-## Auth notes (Better Auth docs)
+### Image upload
 
-- `mcp()` **is** the OAuth provider — do **not** also register `oauthProvider()`.
-- `jwt()` is required for JWKS + resource-bound access tokens.
-- Compose `cimd({ metadataProfile: "mcp-2026-07-28" })` for modern client identity.
-- MCP route exports **only `POST`** with `legacy: "reject"` (2026-07-28 profile).
-- Consent query params are verified with `verifyOAuthQueryParams` before rendering `/consent`.
+```json
+{
+  "dataBase64": "<raw base64 or data:image/png;base64,...>",
+  "mimeType": "image/png",
+  "filename": "cover.png",
+  "slug": "optional-owned-event"
+}
+```
+
+Allowed MIME: `image/jpeg`, `image/png`, `image/webp`, `image/gif` (max 8MB).
 
 ## Suggested agent flow
 
-1. `generate_hackathon_brief` with the organizer’s one-liner  
-2. `generate_cover_image` with `coverPrompt`  
-3. `create_hackathon` with the brief + `coverUrl`  
+1. Author title, tagline, description, tracks, prizes, schedule in the client  
+2. `upload_image` with the cover bytes → get `url`  
+3. `create_hackathon` with that `coverUrl` + the package  
 4. `publish_hackathon` when ready  
+
+## Auth notes
+
+- `mcp()` **is** the OAuth provider — do not also register `oauthProvider()`.
+- `jwt()` required for JWKS + resource-bound access tokens.
+- MCP route exports **only `POST`** with `legacy: "reject"`.

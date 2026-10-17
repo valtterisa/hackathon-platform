@@ -1,6 +1,6 @@
 import { Button, Input, Label, Textarea } from "@hackhost/ui";
 import { redirect } from "next/navigation";
-import { AiHackathonCreator } from "@/components/ai-hackathon-creator";
+import { McpConnectCallout } from "@/components/mcp-connect-callout";
 import { createHackathon } from "@/lib/actions/hackathons";
 import { getSession } from "@/lib/session";
 
@@ -12,12 +12,11 @@ export default async function NewEventPage() {
     <div className="mx-auto max-w-xl px-4 py-10">
       <h1 className="font-display text-3xl font-semibold">Create a hackathon</h1>
       <p className="mt-2 text-[var(--muted-foreground)]">
-        No approval gate. You become the organizer instantly. Or connect an MCP
-        client (ChatGPT / Cursor) to{" "}
-        <code className="text-xs">/api/mcp</code>.
+        No approval gate. You become the organizer instantly — or let any MCP
+        AI client do it for you.
       </p>
       <div className="mt-8">
-        <AiHackathonCreator />
+        <McpConnectCallout />
       </div>
       <div className="my-8 flex items-center gap-3 text-xs uppercase tracking-wide text-[var(--muted-foreground)]">
         <div className="h-px flex-1 bg-[var(--border)]" />
@@ -57,7 +56,11 @@ export default async function NewEventPage() {
         </div>
         <div>
           <Label htmlFor="coverUrl">Cover image URL</Label>
-          <Input id="coverUrl" name="coverUrl" placeholder="https://…" />
+          <Input
+            id="coverUrl"
+            name="coverUrl"
+            placeholder="https://… (or upload via MCP upload_image)"
+          />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>

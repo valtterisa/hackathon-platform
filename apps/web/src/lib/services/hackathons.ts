@@ -33,7 +33,12 @@ export type CreateHackathonInput = {
   highlights?: string[];
   faq?: Array<{ q: string; a: string }>;
   prizes?: Array<{ title: string; value?: string | null; description?: string | null }>;
-  sponsors?: Array<{ name: string; tier?: string | null; url?: string | null }>;
+  sponsors?: Array<{
+    name: string;
+    tier?: string | null;
+    url?: string | null;
+    logoUrl?: string | null;
+  }>;
   tracks?: Array<{ name: string; description?: string | null }>;
   challenges?: Array<{
     title: string;
@@ -145,6 +150,7 @@ export async function createHackathonForUser(
         name: sponsor.name,
         tier: sponsor.tier ?? "partner",
         url: sponsor.url ?? null,
+        logoUrl: sponsor.logoUrl ?? null,
         sortOrder: i,
       })),
     );
