@@ -2,6 +2,7 @@ import { db } from "@hackhost/db";
 import { announcements, channels } from "@hackhost/db/schema";
 import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
+import { PageHeading } from "@/components/page-heading";
 import { assertCanAccessEventApp } from "@/lib/actions/hackathons";
 
 export default async function EventHomePage({
@@ -23,33 +24,35 @@ export default async function EventHomePage({
     }),
   ]);
 
-  return (
-    <div>
-      <h1 className="font-display text-3xl font-semibold">Home</h1>
-      <p className="mt-1 text-[var(--muted-foreground)]">
-        Your next steps for {hackathon.title}
-      </p>
+  const links = [
+    [`/e/${slug}/team`, "Find or create a team"],
+    [`/e/${slug}/match`, "Match with teammates"],
+    [`/e/${slug}/challenges`, "Pick a challenge"],
+    [`/e/${slug}/submit`, "Submit your project"],
+    [`/e/${slug}/schedule`, "View schedule"],
+  ] as const;
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
-        {[
-          { href: `/e/${slug}/team`, label: "Find or create a team" },
-          { href: `/e/${slug}/match`, label: "Match with teammates" },
-          { href: `/e/${slug}/challenges`, label: "Pick a challenge" },
-          { href: `/e/${slug}/submit`, label: "Submit your project" },
-          { href: `/e/${slug}/schedule`, label: "View schedule" },
-        ].map((item) => (
+  return (
+    <>
+      <PageHeading>
+        <PageHeading.Title>Home</PageHeading.Title>
+        <PageHeading.Sub>Next steps for {hackathon.title}</PageHeading.Sub>
+      </PageHeading>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {links.map(([href, label]) => (
           <Link
-            key={item.href}
-            href={item.href}
-            className="rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 hover:border-[var(--primary)]"
+            key={href}
+            href={href}
+            className="bg-[var(--surface)] px-4 py-3 hover:bg-[var(--field-1)]"
           >
-            {item.label}
+            {label}
           </Link>
         ))}
         {isOrganizer ? (
           <Link
             href={`/e/${slug}/manage`}
-            className="rounded-xl border border-[var(--primary)] bg-[var(--card)] px-4 py-3 text-[var(--primary)]"
+            className="bg-[var(--accent)] px-4 py-3 text-[var(--accent-ink)]"
           >
             Open organizer tools
           </Link>
@@ -57,14 +60,14 @@ export default async function EventHomePage({
       </div>
 
       {chans.length > 0 ? (
-        <section className="mt-10">
-          <h2 className="font-display text-xl font-semibold">Channels</h2>
-          <ul className="mt-3 space-y-2">
+        <section className="mt-10 space-y-3">
+          <h2 className="font-display text-xl uppercase">Channels</h2>
+          <ul className="space-y-2">
             {chans.map((c) => (
               <li key={c.id}>
                 <a
                   href={c.url}
-                  className="text-[var(--primary)] underline"
+                  className="underline"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -77,23 +80,18 @@ export default async function EventHomePage({
       ) : null}
 
       {anns.length > 0 ? (
-        <section className="mt-10">
-          <h2 className="font-display text-xl font-semibold">Announcements</h2>
-          <ul className="mt-3 space-y-3">
+        <section className="mt-10 space-y-3">
+          <h2 className="font-display text-xl uppercase">Announcements</h2>
+          <ul className="space-y-3">
             {anns.map((a) => (
-              <li
-                key={a.id}
-                className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-              >
+              <li key={a.id} className="bg-[var(--surface)] p-4">
                 <p className="font-medium">{a.title}</p>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  {a.body}
-                </p>
+                <p className="mt-1 text-sm text-[var(--muted)]">{a.body}</p>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
-    </div>
+    </>
   );
 }

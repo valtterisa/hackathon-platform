@@ -1,4 +1,4 @@
-import { EventSidebar } from "@/components/event-sidebar";
+import { EventProvider, EventShell } from "@/components/event";
 import { assertCanAccessEventApp } from "@/lib/actions/hackathons";
 
 export default async function EventParticipantLayout({
@@ -12,16 +12,17 @@ export default async function EventParticipantLayout({
   const { hackathon, isOrganizer } = await assertCanAccessEventApp(slug);
 
   return (
-    <div className="flex min-h-screen">
-      <EventSidebar
-        slug={slug}
-        title={hackathon.title}
-        mode="participant"
-        isOrganizer={isOrganizer}
-      />
-      <div className="flex-1 overflow-auto bg-[var(--background)]">
-        <div className="mx-auto max-w-4xl px-6 py-8">{children}</div>
-      </div>
-    </div>
+    <EventProvider
+      value={{
+        slug,
+        title: hackathon.title,
+        canOrganize: isOrganizer,
+      }}
+    >
+      <EventShell>
+        <EventShell.Sidebar mode="participant" />
+        <EventShell.Main>{children}</EventShell.Main>
+      </EventShell>
+    </EventProvider>
   );
 }

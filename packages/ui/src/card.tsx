@@ -4,10 +4,7 @@ import { cn } from "./utils";
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] shadow-sm",
-        className,
-      )}
+      className={cn("rounded-none bg-[var(--surface)] text-[var(--ink)]", className)}
       {...props}
     />
   );
@@ -25,7 +22,7 @@ export function CardTitle({
   ...props
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn("font-display text-xl font-semibold", className)} {...props} />
+    <h3 className={cn("font-display text-xl uppercase", className)} {...props} />
   );
 }
 

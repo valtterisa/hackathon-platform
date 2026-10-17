@@ -1,5 +1,5 @@
-import { EventSidebar } from "@/components/event-sidebar";
-import { requireOrganizer, getHackathonBySlug } from "@/lib/rbac";
+import { EventProvider, EventShell } from "@/components/event";
+import { getHackathonBySlug, requireOrganizer } from "@/lib/rbac";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 
@@ -22,16 +22,17 @@ export default async function ManageLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <EventSidebar
-        slug={slug}
-        title={hackathon.title}
-        mode="organizer"
-        isOrganizer
-      />
-      <div className="flex-1 overflow-auto bg-[var(--background)]">
-        <div className="mx-auto max-w-4xl px-6 py-8">{children}</div>
-      </div>
-    </div>
+    <EventProvider
+      value={{
+        slug,
+        title: hackathon.title,
+        canOrganize: true,
+      }}
+    >
+      <EventShell>
+        <EventShell.Sidebar mode="organizer" />
+        <EventShell.Main>{children}</EventShell.Main>
+      </EventShell>
+    </EventProvider>
   );
 }

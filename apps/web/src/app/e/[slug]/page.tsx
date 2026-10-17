@@ -8,10 +8,11 @@ import {
   sponsors,
   tracks,
 } from "@hackhost/db/schema";
-import { Button } from "@hackhost/ui";
+import { Button, Display, Lead } from "@hackhost/ui";
 import { and, asc, eq } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Band, BandInner, Photo } from "@/components/marketing";
 import { getSession } from "@/lib/session";
 
 export default async function EventMarketingPage({
@@ -52,12 +53,18 @@ export default async function EventMarketingPage({
       }),
     ]);
 
-  const highlights = blocks.find((b) => b.type === "highlights");
-  const faq = blocks.find((b) => b.type === "faq");
   const highlightItems =
-    (highlights?.content as { items?: string[] })?.items ?? [];
+    (
+      blocks.find((b) => b.type === "highlights")?.content as {
+        items?: string[];
+      }
+    )?.items ?? [];
   const faqItems =
-    (faq?.content as { items?: { q: string; a: string }[] })?.items ?? [];
+    (
+      blocks.find((b) => b.type === "faq")?.content as {
+        items?: { q: string; a: string }[];
+      }
+    )?.items ?? [];
 
   const session = await getSession();
   let ctaHref = `/e/${slug}/register`;
@@ -79,151 +86,152 @@ export default async function EventMarketingPage({
     }
   }
 
-  return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <header className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 py-4 text-white mix-blend-difference sm:px-8">
-        <Link href="/" className="font-display text-lg font-semibold">
-          Hackhost
-        </Link>
-        <Link href={ctaHref}>
-          <Button size="sm" variant="accent">
-            {ctaLabel}
-          </Button>
-        </Link>
-      </header>
+  const when = [
+    event.startsAt?.toLocaleDateString(),
+    event.location ?? event.mode.replace("_", " "),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-      <section
-        className="relative flex min-h-[72vh] items-end bg-cover bg-center px-4 pb-16 pt-28 sm:px-8"
-        style={{
-          backgroundImage: event.coverUrl
-            ? `linear-gradient(to top, rgba(8,16,12,.92), rgba(8,16,12,.35)), url(${event.coverUrl})`
-            : "linear-gradient(135deg,#0b6e4f,#0f1a14)",
-        }}
-      >
-        <div className="mx-auto w-full max-w-5xl text-white">
-          <p className="text-sm uppercase tracking-[0.2em] text-white/70">
-            {event.mode.replace("_", " ")}
-            {event.location ? ` · ${event.location}` : ""}
-          </p>
-          <h1 className="mt-3 font-display text-4xl font-semibold leading-tight sm:text-6xl">
-            {event.title}
-          </h1>
-          {event.tagline ? (
-            <p className="mt-4 max-w-2xl text-lg text-white/85">{event.tagline}</p>
-          ) : null}
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-white/80">
-            {event.startsAt ? (
-              <span>
-                {event.startsAt.toLocaleString()} –{" "}
-                {event.endsAt?.toLocaleString() ?? ""}
-              </span>
-            ) : null}
+  return (
+    <>
+      <Band field="ink" className="relative min-h-[100svh] overflow-hidden">
+        {event.coverUrl ? (
+          <div className="absolute inset-0 opacity-40">
+            <Photo src={event.coverUrl} alt="" className="h-full" />
+          </div>
+        ) : null}
+        <BandInner className="relative z-10 flex min-h-[100svh] flex-col justify-between py-8">
+          <div className="flex items-center justify-between gap-4">
+            <Link href="/" className="font-display text-lg uppercase">
+              Hackhost
+            </Link>
             <Link href={ctaHref}>
-              <Button size="lg" variant="accent">
-                {ctaLabel}
-              </Button>
+              <Button size="sm">{ctaLabel}</Button>
             </Link>
           </div>
-        </div>
-      </section>
+          <div className="space-y-4">
+            <Display className="max-w-[14ch] text-[clamp(3rem,10vw,8rem)]">
+              {event.title}
+            </Display>
+            {when ? <p className="text-[var(--step-lead)]">{when}</p> : null}
+            {event.tagline ? <Lead>{event.tagline}</Lead> : null}
+          </div>
+          <Link href={ctaHref} className="self-start">
+            <Button size="lg" variant="accent">
+              {ctaLabel}
+            </Button>
+          </Link>
+        </BandInner>
+      </Band>
 
-      <div className="mx-auto grid max-w-5xl gap-16 px-4 py-16 sm:px-8">
-        {event.description ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">About</h2>
-            <p className="mt-3 whitespace-pre-wrap text-[var(--muted-foreground)]">
+      {event.description ? (
+        <Band field="bg" className="py-[var(--section)]">
+          <BandInner className="space-y-4">
+            <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
+              About
+            </Display>
+            <p className="max-w-[60ch] whitespace-pre-wrap text-[var(--step-body)]">
               {event.description}
             </p>
-          </section>
-        ) : null}
+          </BandInner>
+        </Band>
+      ) : null}
 
-        {highlightItems.length > 0 ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">Highlights</h2>
-            <ul className="mt-4 grid gap-3 sm:grid-cols-3">
-              {highlightItems.map((item) => (
-                <li
-                  key={item}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-                >
-                  {item}
+      {highlightItems.length > 0 ? (
+        <Band field="mint" className="py-[var(--section)]">
+          <BandInner className="grid gap-6 md:grid-cols-3">
+            {highlightItems.map((item) => (
+              <p
+                key={item}
+                className="font-display text-[clamp(1.5rem,3vw,2.5rem)] uppercase leading-[0.95]"
+              >
+                {item}
+              </p>
+            ))}
+          </BandInner>
+        </Band>
+      ) : null}
+
+      {eventTracks.length > 0 ? (
+        <Band field="grey" className="py-[var(--section)]">
+          <BandInner className="space-y-8">
+            <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
+              Tracks
+            </Display>
+            <ul className="space-y-6">
+              {eventTracks.map((t) => (
+                <li key={t.id}>
+                  <p className="font-display text-2xl uppercase">{t.name}</p>
+                  {t.description ? (
+                    <p className="mt-1 max-w-[50ch] text-[var(--step-body)]">
+                      {t.description}
+                    </p>
+                  ) : null}
                 </li>
               ))}
             </ul>
-          </section>
-        ) : null}
+          </BandInner>
+        </Band>
+      ) : null}
 
-        {eventTracks.length > 0 ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">Tracks</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {eventTracks.map((t) => (
-                <div
-                  key={t.id}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-                >
-                  <p className="font-medium">{t.name}</p>
-                  <p className="text-sm text-[var(--muted-foreground)]">
-                    {t.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {eventPrizes.length > 0 ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">Prizes</h2>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      {eventPrizes.length > 0 ? (
+        <Band field="orange" className="py-[var(--section)]">
+          <BandInner className="space-y-8">
+            <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
+              Prizes
+            </Display>
+            <ul className="space-y-6">
               {eventPrizes.map((p) => (
-                <div
-                  key={p.id}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4"
-                >
-                  <p className="font-medium">{p.title}</p>
-                  {p.value ? (
-                    <p className="text-[var(--accent)]">{p.value}</p>
-                  ) : null}
-                  <p className="text-sm text-[var(--muted-foreground)]">
-                    {p.description}
+                <li key={p.id} className="md:flex md:items-baseline md:gap-6">
+                  <p className="font-display text-2xl uppercase md:min-w-[12ch]">
+                    {p.title}
                   </p>
-                </div>
+                  <p className="text-[var(--step-lead)]">{p.value}</p>
+                  {p.description ? (
+                    <p className="text-[var(--step-body)]">{p.description}</p>
+                  ) : null}
+                </li>
               ))}
-            </div>
-          </section>
-        ) : null}
+            </ul>
+          </BandInner>
+        </Band>
+      ) : null}
 
-        {eventSponsors.length > 0 ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">Sponsors</h2>
-            <div className="mt-4 flex flex-wrap gap-4">
+      {eventSponsors.length > 0 ? (
+        <Band field="surface" className="py-[var(--section)]">
+          <BandInner className="space-y-6">
+            <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
+              Sponsors
+            </Display>
+            <div className="flex flex-wrap gap-3">
               {eventSponsors.map((s) => (
                 <a
                   key={s.id}
-                  href={s.url ?? "#"}
-                  className="rounded-lg border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm font-medium"
+                  href={s.url ?? undefined}
+                  className="bg-[var(--bg)] px-4 py-3 text-[var(--step-body)]"
                 >
                   {s.name}
-                  <span className="ml-2 text-[var(--muted-foreground)]">
-                    {s.tier}
-                  </span>
                 </a>
               ))}
             </div>
-          </section>
-        ) : null}
+          </BandInner>
+        </Band>
+      ) : null}
 
-        {agenda.length > 0 ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">Agenda</h2>
-            <ul className="mt-4 space-y-2">
+      {agenda.length > 0 ? (
+        <Band field="bg" className="py-[var(--section)]">
+          <BandInner className="space-y-8">
+            <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
+              Agenda
+            </Display>
+            <ul className="space-y-4">
               {agenda.map((item) => (
                 <li
                   key={item.id}
-                  className="flex gap-4 border-b border-[var(--border)] py-3 text-sm"
+                  className="grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-6"
                 >
-                  <span className="w-28 shrink-0 text-[var(--muted-foreground)]">
+                  <span className="text-[var(--muted)]">
                     {item.startsAt.toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -236,44 +244,39 @@ export default async function EventMarketingPage({
                 </li>
               ))}
             </ul>
-            <Link
-              href={`/e/${slug}/schedule`}
-              className="mt-3 inline-block text-sm text-[var(--primary)] underline"
-            >
-              Full schedule
-            </Link>
-          </section>
-        ) : null}
+          </BandInner>
+        </Band>
+      ) : null}
 
-        {faqItems.length > 0 ? (
-          <section>
-            <h2 className="font-display text-2xl font-semibold">FAQ</h2>
-            <div className="mt-4 space-y-4">
+      {faqItems.length > 0 ? (
+        <Band field="mint" className="py-[var(--section)]">
+          <BandInner className="space-y-8">
+            <Display as="h2" className="text-[clamp(2rem,5vw,4rem)]">
+              FAQ
+            </Display>
+            <dl className="space-y-6">
               {faqItems.map((item) => (
                 <div key={item.q}>
-                  <p className="font-medium">{item.q}</p>
-                  <p className="text-[var(--muted-foreground)]">{item.a}</p>
+                  <dt className="font-display text-xl uppercase">{item.q}</dt>
+                  <dd className="mt-2 max-w-[50ch] text-[var(--step-body)]">
+                    {item.a}
+                  </dd>
                 </div>
               ))}
-            </div>
-          </section>
-        ) : null}
-      </div>
+            </dl>
+          </BandInner>
+        </Band>
+      ) : null}
 
-      <div className="sticky bottom-0 border-t border-[var(--border)] bg-[var(--card)]/95 px-4 py-3 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
-          <div>
-            <p className="font-medium">{event.title}</p>
-            <p className="text-xs text-[var(--muted-foreground)]">
-              Register on Hackhost
-            </p>
-          </div>
+      <Band field="ink" className="sticky bottom-0">
+        <BandInner className="flex items-center justify-between gap-4 py-4">
+          <p className="font-display text-lg uppercase">{event.title}</p>
           <Link href={ctaHref}>
             <Button variant="accent">{ctaLabel}</Button>
           </Link>
-        </div>
-      </div>
-    </div>
+        </BandInner>
+      </Band>
+    </>
   );
 }
 

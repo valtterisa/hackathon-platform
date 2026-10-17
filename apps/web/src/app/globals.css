@@ -1,5 +1,4 @@
 @import "@hackhost/ui/globals.css";
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap");
 
 html,
 body {
@@ -11,6 +10,79 @@ a {
   text-decoration: none;
 }
 
-.prose-muted {
-  color: var(--muted-foreground);
+.wrap {
+  padding-inline: var(--margin);
+}
+
+.poster-display {
+  font-family: var(--font-display);
+  font-size: var(--step-display);
+  font-weight: 700;
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.tilt-photo {
+  transform: rotate(-4deg);
+}
+
+.faq-card {
+  clip-path: polygon(0 40px, 0 0, 200px 0, 200px 40px, 100% 40px, 100% 100%, 0 100%);
+}
+
+@media (max-width: 48em) {
+  .faq-card {
+    clip-path: polygon(0 40px, 0 0, 120px 0, 120px 40px, 100% 40px, 100% 100%, 0 100%);
+  }
+}
+
+.hh-footer-mark {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  height: 34svh;
+  align-items: end;
+}
+
+.hh-footer-mark span {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--field-2);
+  color: var(--field-2-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  padding-bottom: 0.35em;
+}
+
+.hh-footer-mark span:nth-child(odd) {
+  height: 100%;
+  background: var(--field-3);
+  color: var(--field-3-ink);
+}
+
+.hh-footer-mark span:nth-child(3n) {
+  height: 72%;
+  background: var(--field-1);
+}
+
+.hh-footer-mark span:nth-child(4n) {
+  height: 88%;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.credits {
+  font-size: var(--step-small);
+  color: var(--muted);
+  max-width: none;
+}
+
+.credits a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
