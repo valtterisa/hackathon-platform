@@ -62,11 +62,18 @@ export default async function EventLoginPage({
 
         <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 text-sm">
           <p className="text-[var(--muted-foreground)]">New here?</p>
-          <Link href={`/e/${slug}/register`} className="mt-2 inline-block">
-            <Button variant="outline" size="sm">
-              Register for this hackathon
-            </Button>
-          </Link>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Link href={`/e/${slug}/signup`}>
+              <Button variant="outline" size="sm">
+                Create account
+              </Button>
+            </Link>
+            <Link href={`/e/${slug}`}>
+              <Button variant="ghost" size="sm">
+                Back to event page
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
