@@ -5,6 +5,8 @@ Open-source hackathon platform: market each event, register builders, run teams 
 - **Self-host** with Docker Compose + Postgres
 - **Managed-ready** same codebase (rate limits, platform admin)
 - **Better Auth** (email/password + optional Google)
+- **MCP OAuth 2.1** (`/api/mcp`) so ChatGPT / Cursor can create hackathons
+- **AI create** — ChatGPT brief + cover images via `/api/ai/hackathon/*`
 - **Per-event RBAC** (organizer / participant / judge / mentor)
 - **No `/dashboard`** — event apps live under `/e/[slug]/…`
 
@@ -41,13 +43,18 @@ packages/config   Shared TypeScript config
 |------|---------|
 | `/` | Platform marketing |
 | `/events` | Discovery |
-| `/events/new` | Create hackathon (any signed-in user) |
+| `/events/new` | Create hackathon (manual or ChatGPT) |
+| `/consent` | OAuth consent for MCP clients |
+| `/api/mcp` | MCP 2026-07-28 tools (OAuth bearer) |
+| `/api/ai/hackathon/*` | Session-auth AI generate / cover / create |
 | `/e/[slug]` | Event marketing landing + register CTA |
 | `/e/[slug]/register` | Registration |
 | `/e/[slug]/home` | Participant sidebar app |
 | `/e/[slug]/manage` | Organizer sidebar app |
 | `/invites/[token]` | Co-organizer / team / judge / mentor invites |
 | `/admin` | Platform admin (flag on user) |
+
+See [docs/MCP.md](./docs/MCP.md) for OAuth discovery, scopes, and tool reference.
 
 ## License
 

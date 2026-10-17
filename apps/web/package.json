@@ -10,12 +10,17 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@better-auth/cimd": "1.7.10",
+    "@better-auth/mcp": "1.7.10",
+    "@better-auth/oauth-provider": "1.7.10",
     "@hackhost/auth": "workspace:*",
     "@hackhost/db": "workspace:*",
     "@hackhost/ui": "workspace:*",
-    "better-auth": "^1.2.8",
+    "@modelcontextprotocol/server": "2.3.1",
+    "better-auth": "^1.7.10",
     "drizzle-orm": "^0.45.4",
     "next": "^15.3.3",
+    "openai": "^7.36.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^4.6.7"

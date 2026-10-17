@@ -29,7 +29,7 @@ import {
 import { and, eq, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createId, slugify } from "@/lib/ids";
+import { createId } from "@/lib/ids";
 import {
   getHackathonBySlug,
   isOrganizer,
@@ -45,20 +45,10 @@ async function requireUser() {
 
 export async function createHackathon(formData: FormData) {
   const currentUser = await requireUser();
-  const title = String(formData.get("title") ?? "").trim();
-  if (!title) throw new Error("Title required");
-
-  let slug = slugify(String(formData.get("slug") ?? title));
-  if (!slug) slug = createId("event");
-
-  const existing = await getHackathonBySlug(slug);
-  if (existing) slug = `${slug}-${createId("x").slice(-4)}`;
-
-  const id = createId("hack");
-  await db.insert(hackathons).values({
-    id,
-    slug,
-    title,
+  const { createHackathonForUser } = await import("@/lib/services/hackathons");
+  const created = await createHackathonForUser(currentUser.id, {
+    title: String(formData.get("title") ?? "").trim(),
+    slug: String(formData.get("slug") ?? "") || null,
     tagline: String(formData.get("tagline") ?? "") || null,
     description: String(formData.get("description") ?? "") || null,
     coverUrl: String(formData.get("coverUrl") ?? "") || null,
@@ -80,38 +70,9 @@ export async function createHackathon(formData: FormData) {
     endsAt: formData.get("endsAt")
       ? new Date(String(formData.get("endsAt")))
       : null,
-    status: "draft",
-    createdBy: currentUser.id,
   });
 
-  await db.insert(hackathonMemberships).values({
-    id: createId("mem"),
-    hackathonId: id,
-    userId: currentUser.id,
-    role: "organizer",
-    status: "active",
-  });
-
-  await db.insert(hackathonPageBlocks).values([
-    {
-      id: createId("blk"),
-      hackathonId: id,
-      type: "highlights",
-      sortOrder: 0,
-      content: { items: ["Build with friends", "Ship in a weekend"] },
-    },
-    {
-      id: createId("blk"),
-      hackathonId: id,
-      type: "faq",
-      sortOrder: 1,
-      content: {
-        items: [{ q: "Who can join?", a: "Anyone who wants to build." }],
-      },
-    },
-  ]);
-
-  redirect(`/e/${slug}/manage/page`);
+  redirect(`/e/${created.slug}/manage/page`);
 }
 
 export async function updateHackathonSettings(slug: string, formData: FormData) {

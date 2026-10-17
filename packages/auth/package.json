@@ -5,14 +5,18 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./client": "./src/client.ts"
+    "./client": "./src/client.ts",
+    "./mcp": "./src/mcp.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@better-auth/cimd": "1.7.10",
+    "@better-auth/mcp": "1.7.10",
+    "@better-auth/oauth-provider": "1.7.10",
     "@hackhost/db": "workspace:*",
-    "better-auth": "^1.2.8",
+    "better-auth": "^1.7.10",
     "drizzle-orm": "^0.45.4"
   },
   "devDependencies": {
