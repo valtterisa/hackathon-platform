@@ -1,8 +1,8 @@
 # Hackhost MCP
 
-Hackhost exposes a **remote MCP server** so **any MCP-capable AI client** (Cursor, Claude, ChatGPT apps, custom agents, etc.) can create and manage hackathons — including **uploading cover images**.
+Hackhost exposes a **remote MCP server** so **any MCP-capable AI client** (Cursor, Claude, ChatGPT apps, custom agents, etc.) can run the full organizer and participant dashboard over OAuth — create events, upload images, manage people, teams, submissions, judging, invites, messaging, and profiles.
 
-The client LLM writes the copy. Tools only persist data.
+The client LLM writes the copy. Tools persist data with the same RBAC as the web dashboard.
 
 ## Architecture
 
@@ -15,10 +15,10 @@ Better Auth  (/api/auth/oauth2/*, /jwks, /.well-known/*)
         ▼
 POST /api/mcp   ← requireMcpAuth + MCP 2026-07-28 (stateless)
         │
-        ├─ upload_image              → disk + /api/uploads/…
-        ├─ create_hackathon          → Postgres
-        ├─ update_hackathon / publish_hackathon
-        └─ list_my_hackathons / get_hackathon
+        ├─ Marketing: upload_image, create/update/publish hackathon
+        ├─ Organizer: overview, people, channels, announcements,
+        │             challenges, schedule, check-in, invites, judging
+        └─ Participant: register, teams, match, submissions, DMs, profile
 ```
 
 ## Env
@@ -62,14 +62,47 @@ DCR is enabled for clients that still need it (`infer` application type). Prefer
 
 ## Tools
 
+### Marketing & lifecycle
+
+| Tool | Who | Notes |
+|------|-----|-------|
+| `upload_image` | auth | Base64 / data-URL → `/api/uploads/...`; optional `slug` sets `coverUrl` |
+| `create_hackathon` | organizer | Draft + full marketing package |
+| `update_hackathon` | organizer | Patch settings / marketing |
+| `publish_hackathon` / `set_hackathon_status` | organizer | Lifecycle |
+| `list_my_hackathons` | member | Active memberships |
+| `get_hackathon` | public* | Full bundle; `requireOrganizer` optional |
+| `list_published_events` | auth | Discovery / search |
+
+### Organizer dashboard
+
 | Tool | Notes |
 |------|-------|
-| `upload_image` | Base64 / data-URL image → public `/api/uploads/...` URL; optional `slug` sets `coverUrl` |
-| `create_hackathon` | Create draft with full marketing package; pass `coverUrl` from `upload_image` |
-| `update_hackathon` | Organizer patch (including `coverUrl`) |
-| `publish_hackathon` / `set_hackathon_status` | Lifecycle |
-| `list_my_hackathons` | Active memberships for the token subject |
-| `get_hackathon` | Full bundle; `requireOrganizer` optional |
+| `get_event_overview` | Counts + membership breakdown |
+| `list_people` / `update_membership_status` / `export_people_csv` | Roster & applications |
+| `list_channels` / `add_channel` | Community links |
+| `list_announcements` / `create_announcement` | Broadcasts |
+| `create_challenge` / `add_schedule_item` | Program |
+| `create_invite` | `co_organizer` \| `judge` \| `mentor` \| `team` |
+| `list_teams` / `list_submissions` | Ops views |
+| `check_in_user` / `list_check_ins` | Day-of |
+| `score_submission` / `list_judging_scores` | Judge or organizer |
+
+### Participant dashboard
+
+| Tool | Notes |
+|------|-------|
+| `register_for_event` | Open / apply modes |
+| `accept_invite` | Join via invite token |
+| `get_event_home` | Announcements, channels, my team |
+| `create_team` | Become team leader |
+| `upsert_match_profile` / `list_match_profiles` | Teammate matching |
+| `select_challenge` | Pick a challenge for your team |
+| `upsert_submission` | Project submit / update |
+| `send_direct_message` / `list_conversations` / `get_conversation_messages` | DMs |
+| `get_my_profile` / `update_my_profile` | Account profile |
+
+RBAC matches the web app: organizer-only tools throw `FORBIDDEN: organizer required`; event tools require an active membership.
 
 ### Image upload
 
@@ -84,12 +117,25 @@ DCR is enabled for clients that still need it (`infer` application type). Prefer
 
 Allowed MIME: `image/jpeg`, `image/png`, `image/webp`, `image/gif` (max 8MB).
 
-## Suggested agent flow
+## Suggested agent flows
+
+**Organizer — launch an event**
 
 1. Author title, tagline, description, tracks, prizes, schedule in the client  
-2. `upload_image` with the cover bytes → get `url`  
-3. `create_hackathon` with that `coverUrl` + the package  
-4. `publish_hackathon` when ready  
+2. `upload_image` → get `url`  
+3. `create_hackathon` with that `coverUrl`  
+4. `add_channel`, `create_announcement`, `create_challenge`, `add_schedule_item` as needed  
+5. `create_invite` for judges / co-organizers  
+6. `publish_hackathon` when ready  
+7. During the event: `list_people`, `update_membership_status`, `check_in_user`, `list_submissions`, `score_submission`
+
+**Participant — join and ship**
+
+1. `list_published_events` → `register_for_event` (or `accept_invite`)  
+2. `update_my_profile` / `upsert_match_profile` → `list_match_profiles`  
+3. `create_team` or join via team invite  
+4. `select_challenge` → `upsert_submission`  
+5. `send_direct_message` for teammate coordination  
 
 ## Auth notes
 
