@@ -34,9 +34,8 @@ export default async function EventHomePage({
 
   return (
     <>
-      <PageHeading>
-        <PageHeading.Title>Home</PageHeading.Title>
-        <PageHeading.Sub>Next steps for {hackathon.title}</PageHeading.Sub>
+      <PageHeading title="Home">
+        <p className="text-[var(--muted)]">Next steps for {hackathon.title}</p>
       </PageHeading>
 
       <div className="grid gap-2 sm:grid-cols-2">

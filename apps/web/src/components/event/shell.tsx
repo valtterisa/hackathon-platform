@@ -31,11 +31,15 @@ const organizerNav = (base: string) =>
     ["Judging", `${base}/manage/judging`],
   ] as const;
 
-function Shell({ children }: { children: ReactNode }) {
+export function EventShell({ children }: { children: ReactNode }) {
   return <div className="flex min-h-screen">{children}</div>;
 }
 
-function Sidebar({ mode }: { mode: "participant" | "organizer" }) {
+export function EventSidebar({
+  mode,
+}: {
+  mode: "participant" | "organizer";
+}) {
   const { slug, title, canOrganize } = useEvent();
   const pathname = usePathname();
   const base = `/e/${slug}`;
@@ -46,7 +50,10 @@ function Sidebar({ mode }: { mode: "participant" | "organizer" }) {
     <aside className="flex w-60 shrink-0 flex-col bg-[var(--sidebar)] text-[var(--sidebar-foreground)]">
       <div className="bg-[var(--sidebar-muted)] p-4">
         <p className="font-display text-base uppercase leading-tight">{title}</p>
-        <Link href={base} className="mt-2 block text-sm text-[var(--accent)] underline">
+        <Link
+          href={base}
+          className="mt-2 block text-sm text-[var(--accent)] underline"
+        >
           Public page
         </Link>
       </div>
@@ -112,12 +119,10 @@ function Sidebar({ mode }: { mode: "participant" | "organizer" }) {
   );
 }
 
-function Main({ children }: { children: ReactNode }) {
+export function EventMain({ children }: { children: ReactNode }) {
   return (
     <main className="flex-1 overflow-auto bg-[var(--bg)]">
       <div className="mx-auto max-w-4xl px-6 py-8">{children}</div>
     </main>
   );
 }
-
-export const EventShell = Object.assign(Shell, { Sidebar, Main });

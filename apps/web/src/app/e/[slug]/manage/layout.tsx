@@ -1,4 +1,4 @@
-import { EventProvider, EventShell } from "@/components/event";
+import { EventMain, EventProvider, EventShell, EventSidebar } from "@/components/event";
 import { getHackathonBySlug, requireOrganizer } from "@/lib/rbac";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
@@ -30,8 +30,8 @@ export default async function ManageLayout({
       }}
     >
       <EventShell>
-        <EventShell.Sidebar mode="organizer" />
-        <EventShell.Main>{children}</EventShell.Main>
+        <EventSidebar mode="organizer" />
+        <EventMain>{children}</EventMain>
       </EventShell>
     </EventProvider>
   );

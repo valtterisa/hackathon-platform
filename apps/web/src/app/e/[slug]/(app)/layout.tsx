@@ -1,4 +1,4 @@
-import { EventProvider, EventShell } from "@/components/event";
+import { EventMain, EventProvider, EventShell, EventSidebar } from "@/components/event";
 import { assertCanAccessEventApp } from "@/lib/actions/hackathons";
 
 export default async function EventParticipantLayout({
@@ -20,8 +20,8 @@ export default async function EventParticipantLayout({
       }}
     >
       <EventShell>
-        <EventShell.Sidebar mode="participant" />
-        <EventShell.Main>{children}</EventShell.Main>
+        <EventSidebar mode="participant" />
+        <EventMain>{children}</EventMain>
       </EventShell>
     </EventProvider>
   );
