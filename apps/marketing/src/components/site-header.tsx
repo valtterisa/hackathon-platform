@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AppLink, AppTextLink } from "@/components/app-link";
 import { type Tone, toneClass } from "@/components/tone";
 
-const HEADER_LINE = 63;
+const HEADER_LINE = 66;
 
 /** Takes the field colour of whichever `[data-tone]` chapter sits under the bar. */
 function useChapterTone(): Tone {
