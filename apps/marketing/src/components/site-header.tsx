@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AppLink, AppTextLink } from "@/components/app-link";
 import { type Tone, toneClass } from "@/components/tone";
 
-const HEADER_LINE = 32;
+const HEADER_LINE = 63;
 
 /** Takes the field colour of whichever `[data-tone]` chapter sits under the bar. */
 function useChapterTone(): Tone {
@@ -28,12 +28,11 @@ function useChapterTone(): Tone {
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(read);
     };
-    read();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    onScroll();
+    const events = ["scroll", "resize", "load", "hashchange"] as const;
+    for (const e of events) window.addEventListener(e, onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      for (const e of events) window.removeEventListener(e, onScroll);
       cancelAnimationFrame(frame);
     };
   }, []);

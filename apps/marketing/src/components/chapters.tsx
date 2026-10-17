@@ -144,7 +144,12 @@ export function Chapters() {
             toneClass[c.tone],
           )}
         >
-          <h2 className="reveal font-display text-[clamp(2.75rem,10.2vw,12rem)]">
+          <h2
+            className={cn(
+              "reveal font-display text-[clamp(2.75rem,10.2vw,12rem)]",
+              c.tone === "black" ? "text-white" : "text-ink",
+            )}
+          >
             {c.verb}
           </h2>
           <div className="grid items-end gap-8 md:grid-cols-12">
