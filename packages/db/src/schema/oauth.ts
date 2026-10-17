@@ -5,7 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
-  uniqueIndex,
+  unique,
 } from "drizzle-orm/pg-core";
 import { session, user } from "./auth";
 
@@ -21,77 +21,69 @@ export const jwks = pgTable("jwks", {
 });
 
 /** OAuth 2.1 clients (MCP / CIMD / DCR). */
-export const oauthClient = pgTable(
-  "oauth_client",
-  {
-    id: text("id").primaryKey(),
-    clientId: text("client_id").notNull(),
-    clientSecret: text("client_secret"),
-    clientDiscoveryId: text("client_discovery_id"),
-    disabled: boolean("disabled").default(false),
-    skipConsent: boolean("skip_consent"),
-    enableEndSession: boolean("enable_end_session"),
-    subjectType: text("subject_type"),
-    scopes: text("scopes").array(),
-    clientCredentialsScopes: text("client_credentials_scopes")
-      .array()
-      .default([]),
-    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
-    createdAt: timestamp("created_at"),
-    updatedAt: timestamp("updated_at"),
-    name: text("name"),
-    uri: text("uri"),
-    icon: text("icon"),
-    contacts: text("contacts").array(),
-    tos: text("tos"),
-    policy: text("policy"),
-    softwareId: text("software_id"),
-    softwareVersion: text("software_version"),
-    softwareStatement: text("software_statement"),
-    redirectUris: text("redirect_uris").array().notNull(),
-    postLogoutRedirectUris: text("post_logout_redirect_uris").array(),
-    backchannelLogoutUri: text("backchannel_logout_uri"),
-    backchannelLogoutSessionRequired: boolean(
-      "backchannel_logout_session_required",
-    ),
-    tokenEndpointAuthMethod: text("token_endpoint_auth_method"),
-    applicationType: text("application_type"),
-    jwks: text("jwks"),
-    jwksUri: text("jwks_uri"),
-    grantTypes: text("grant_types").array(),
-    responseTypes: text("response_types").array(),
-    requirePKCE: boolean("require_pkce"),
-    dpopBoundAccessTokens: boolean("dpop_bound_access_tokens").default(false),
-    referenceId: text("reference_id"),
-    metadata: jsonb("metadata"),
-  },
-  (t) => [uniqueIndex("oauth_client_client_id_idx").on(t.clientId)],
-);
+export const oauthClient = pgTable("oauth_client", {
+  id: text("id").primaryKey(),
+  clientId: text("client_id").notNull().unique(),
+  clientSecret: text("client_secret"),
+  clientDiscoveryId: text("client_discovery_id"),
+  disabled: boolean("disabled").default(false),
+  skipConsent: boolean("skip_consent"),
+  enableEndSession: boolean("enable_end_session"),
+  subjectType: text("subject_type"),
+  scopes: text("scopes").array(),
+  clientCredentialsScopes: text("client_credentials_scopes")
+    .array()
+    .default([]),
+  userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
+  name: text("name"),
+  uri: text("uri"),
+  icon: text("icon"),
+  contacts: text("contacts").array(),
+  tos: text("tos"),
+  policy: text("policy"),
+  softwareId: text("software_id"),
+  softwareVersion: text("software_version"),
+  softwareStatement: text("software_statement"),
+  redirectUris: text("redirect_uris").array().notNull(),
+  postLogoutRedirectUris: text("post_logout_redirect_uris").array(),
+  backchannelLogoutUri: text("backchannel_logout_uri"),
+  backchannelLogoutSessionRequired: boolean(
+    "backchannel_logout_session_required",
+  ),
+  tokenEndpointAuthMethod: text("token_endpoint_auth_method"),
+  applicationType: text("application_type"),
+  jwks: text("jwks"),
+  jwksUri: text("jwks_uri"),
+  grantTypes: text("grant_types").array(),
+  responseTypes: text("response_types").array(),
+  requirePKCE: boolean("require_pkce"),
+  dpopBoundAccessTokens: boolean("dpop_bound_access_tokens").default(false),
+  referenceId: text("reference_id"),
+  metadata: jsonb("metadata"),
+});
 
 /** Protected resources the AS can mint audience-bound tokens for. */
-export const oauthResource = pgTable(
-  "oauth_resource",
-  {
-    id: text("id").primaryKey(),
-    identifier: text("identifier").notNull(),
-    name: text("name").notNull(),
-    accessTokenTtl: integer("access_token_ttl"),
-    refreshTokenTtl: integer("refresh_token_ttl"),
-    signingAlgorithm: text("signing_algorithm"),
-    signingKeyId: text("signing_key_id"),
-    allowedScopes: text("allowed_scopes").array(),
-    customClaims: jsonb("custom_claims"),
-    dpopBoundAccessTokensRequired: boolean(
-      "dpop_bound_access_tokens_required",
-    ).default(false),
-    disabled: boolean("disabled").default(false),
-    createdAt: timestamp("created_at"),
-    updatedAt: timestamp("updated_at"),
-    policyVersion: integer("policy_version").default(1),
-    metadata: jsonb("metadata"),
-  },
-  (t) => [uniqueIndex("oauth_resource_identifier_idx").on(t.identifier)],
-);
+export const oauthResource = pgTable("oauth_resource", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull().unique(),
+  name: text("name").notNull(),
+  accessTokenTtl: integer("access_token_ttl"),
+  refreshTokenTtl: integer("refresh_token_ttl"),
+  signingAlgorithm: text("signing_algorithm"),
+  signingKeyId: text("signing_key_id"),
+  allowedScopes: text("allowed_scopes").array(),
+  customClaims: jsonb("custom_claims"),
+  dpopBoundAccessTokensRequired: boolean(
+    "dpop_bound_access_tokens_required",
+  ).default(false),
+  disabled: boolean("disabled").default(false),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
+  policyVersion: integer("policy_version").default(1),
+  metadata: jsonb("metadata"),
+});
 
 /** Which clients may request which resources. */
 export const oauthClientResource = pgTable(
@@ -107,9 +99,7 @@ export const oauthClientResource = pgTable(
     metadata: jsonb("metadata"),
     createdAt: timestamp("created_at"),
   },
-  (t) => [
-    uniqueIndex("oauth_client_resource_pair_idx").on(t.clientId, t.resourceId),
-  ],
+  (t) => [unique("oauth_client_resource_pair_idx").on(t.clientId, t.resourceId)],
 );
 
 export const oauthRefreshToken = pgTable("oauth_refresh_token", {
