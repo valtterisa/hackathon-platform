@@ -39,12 +39,14 @@ packages/config   Shared TypeScript config
 
 | Path | Purpose |
 |------|---------|
-| `/` | Platform marketing |
-| `/events` | Discovery |
+| `/` | Platform marketing (organizers) + “Looking for hackathons?” |
+| `/events` | Discovery of all published hackathons |
 | `/events/new` | Create hackathon (any signed-in user) |
-| `/e/[slug]` | Event marketing landing + register CTA |
-| `/e/[slug]/register` | Registration |
-| `/e/[slug]/home` | Participant sidebar app |
+| `/e/[slug]` | Event marketing landing + register / participant login |
+| `/e/[slug]/login` | Per-event participant login → dashboard |
+| `/e/[slug]/signup` | Per-event account create → registration |
+| `/e/[slug]/register` | Registration (membership required for dashboard) |
+| `/e/[slug]/home` | Participant sidebar app (members only) |
 | `/e/[slug]/manage` | Organizer sidebar app |
 | `/invites/[token]` | Co-organizer / team / judge / mentor invites |
 | `/admin` | Platform admin (flag on user) |
