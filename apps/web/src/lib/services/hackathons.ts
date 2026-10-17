@@ -11,6 +11,7 @@ import {
 } from "@hackhost/db/schema";
 import { and, eq } from "drizzle-orm";
 import { createId, slugify } from "@/lib/ids";
+import { requireOrganizerBySlug } from "@/lib/services/access";
 
 export type EventMode = "in_person" | "online" | "hybrid";
 export type JoinMode = "open" | "apply" | "invite_only";
@@ -199,29 +200,15 @@ export async function createHackathonForUser(
   return { id, slug, title, status: input.status ?? "draft" };
 }
 
-export async function requireOrganizerAccess(
-  hackathonId: string,
-  userId: string,
-) {
-  const membership = await db.query.hackathonMemberships.findFirst({
-    where: and(
-      eq(hackathonMemberships.hackathonId, hackathonId),
-      eq(hackathonMemberships.userId, userId),
-      eq(hackathonMemberships.role, "organizer"),
-      eq(hackathonMemberships.status, "active"),
-    ),
-  });
-  if (!membership) throw new Error("FORBIDDEN");
-  return membership;
-}
-
 export async function getHackathonOwnedByUser(slug: string, userId: string) {
-  const hackathon = await db.query.hackathons.findFirst({
-    where: eq(hackathons.slug, slug),
-  });
-  if (!hackathon) return null;
-  await requireOrganizerAccess(hackathon.id, userId);
-  return hackathon;
+  try {
+    const { hackathon } = await requireOrganizerBySlug(slug, userId);
+    return hackathon;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message === "Hackathon not found") return null;
+    throw error;
+  }
 }
 
 export async function updateHackathonMarketingForUser(

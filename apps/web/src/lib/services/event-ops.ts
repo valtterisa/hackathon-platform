@@ -23,10 +23,13 @@ import {
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { createId } from "@/lib/ids";
 import {
+  requireActiveEventMember,
   requireEventAccessBySlug,
   requireHackathonBySlug,
   requireJudgeOrOrganizerBySlug,
   requireOrganizerBySlug,
+  requireParticipantOrOrganizerBySlug,
+  requireReadableHackathonBySlug,
 } from "@/lib/services/access";
 
 function appUrl() {
@@ -228,32 +231,42 @@ export async function createInviteForUser(
   type: "co_organizer" | "team" | "judge" | "mentor",
   teamId?: string | null,
 ) {
-  const hackathon = await requireHackathonBySlug(slug);
   if (type !== "team") {
-    await requireOrganizerBySlug(slug, userId);
-  } else {
-    await requireEventAccessBySlug(slug, userId);
-    if (!teamId) throw new Error("teamId required for team invites");
-    const member = await db.query.teamMembers.findFirst({
-      where: and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)),
-    });
-    const team = await db.query.teams.findFirst({
-      where: and(eq(teams.id, teamId), eq(teams.hackathonId, hackathon.id)),
-    });
-    if (!team) throw new Error("Team not found");
-    if (!member && team.createdBy !== userId) {
-      const { isOrganizer } = await requireEventAccessBySlug(slug, userId);
-      if (!isOrganizer) throw new Error("FORBIDDEN: not a team member");
-    }
+    const { hackathon } = await requireOrganizerBySlug(slug, userId);
+    return createInviteRow(userId, hackathon.id, type, null);
   }
 
+  const { hackathon, isOrganizer } = await requireEventAccessBySlug(
+    slug,
+    userId,
+  );
+  if (!teamId) throw new Error("teamId required for team invites");
+  const team = await db.query.teams.findFirst({
+    where: and(eq(teams.id, teamId), eq(teams.hackathonId, hackathon.id)),
+  });
+  if (!team) throw new Error("Team not found");
+  const member = await db.query.teamMembers.findFirst({
+    where: and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)),
+  });
+  if (!member && team.createdBy !== userId && !isOrganizer) {
+    throw new Error("FORBIDDEN: not a team member");
+  }
+  return createInviteRow(userId, hackathon.id, type, teamId);
+}
+
+async function createInviteRow(
+  userId: string,
+  hackathonId: string,
+  type: "co_organizer" | "team" | "judge" | "mentor",
+  teamId: string | null,
+) {
   const token = createId("inv");
   await db.insert(inviteTokens).values({
     id: createId("invrow"),
     token,
     type,
-    hackathonId: hackathon.id,
-    teamId: teamId ?? null,
+    hackathonId,
+    teamId,
     createdBy: userId,
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   });
@@ -481,6 +494,18 @@ export async function acceptInviteToken(userId: string, token: string) {
   }
 
   if (invite.type === "team" && invite.teamId) {
+    if (!invite.hackathonId) throw new Error("Invalid invite");
+    // Team invites only for active event members (or auto-register open events).
+    const existing = await db.query.hackathonMemberships.findFirst({
+      where: and(
+        eq(hackathonMemberships.hackathonId, invite.hackathonId),
+        eq(hackathonMemberships.userId, userId),
+        eq(hackathonMemberships.status, "active"),
+      ),
+    });
+    if (!existing) {
+      throw new Error("FORBIDDEN: register for the event before joining a team");
+    }
     await db.insert(teamMembers).values({
       id: createId("tm"),
       teamId: invite.teamId,
@@ -542,7 +567,7 @@ export async function createTeamForUser(
     lookingForMembers?: boolean;
   },
 ) {
-  const { hackathon } = await requireEventAccessBySlug(slug, userId);
+  const { hackathon } = await requireParticipantOrOrganizerBySlug(slug, userId);
   const name = input.name.trim();
   if (!name) throw new Error("Name required");
   const teamId = createId("team");
@@ -574,7 +599,7 @@ export async function upsertMatchProfileForUser(
     lookingFor?: string | null;
   },
 ) {
-  const { hackathon } = await requireEventAccessBySlug(slug, userId);
+  const { hackathon } = await requireParticipantOrOrganizerBySlug(slug, userId);
   const existing = await db.query.matchProfiles.findFirst({
     where: and(
       eq(matchProfiles.hackathonId, hackathon.id),
@@ -644,7 +669,7 @@ export async function selectChallengeForTeam(
   slug: string,
   challengeId: string,
 ) {
-  const { hackathon } = await requireEventAccessBySlug(slug, userId);
+  const { hackathon } = await requireParticipantOrOrganizerBySlug(slug, userId);
   const team = await getMyTeam(userId, hackathon.id);
   if (!team) throw new Error("Join a team first");
   const challenge = await db.query.challenges.findFirst({
@@ -681,7 +706,7 @@ export async function upsertSubmissionForTeam(
     videoUrl?: string | null;
   },
 ) {
-  const { hackathon } = await requireEventAccessBySlug(slug, userId);
+  const { hackathon } = await requireParticipantOrOrganizerBySlug(slug, userId);
   const team = await getMyTeam(userId, hackathon.id);
   if (!team) throw new Error("Join a team first");
 
@@ -758,7 +783,26 @@ export async function sendDirectMessage(
   if (!body) throw new Error("body required");
 
   let convId = input.conversationId ?? null;
-  if (!convId) {
+  if (convId) {
+    const conv = await db.query.conversations.findFirst({
+      where: and(
+        eq(conversations.id, convId),
+        eq(conversations.hackathonId, hackathon.id),
+      ),
+    });
+    if (!conv) throw new Error("Conversation not found");
+    const part = await db.query.conversationParticipants.findFirst({
+      where: and(
+        eq(conversationParticipants.conversationId, convId),
+        eq(conversationParticipants.userId, userId),
+      ),
+    });
+    if (!part) throw new Error("FORBIDDEN: not a conversation participant");
+  } else {
+    if (input.recipientId === userId) {
+      throw new Error("Cannot message yourself");
+    }
+    await requireActiveEventMember(hackathon.id, input.recipientId);
     convId = createId("conv");
     await db.insert(conversations).values({
       id: convId,

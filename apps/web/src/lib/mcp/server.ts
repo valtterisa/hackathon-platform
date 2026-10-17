@@ -11,6 +11,10 @@ import {
   listHackathonsForUser,
   updateHackathonMarketingForUser,
 } from "@/lib/services/hackathons";
+import {
+  requireOrganizerBySlug,
+  requireReadableHackathonBySlug,
+} from "@/lib/services/access";
 import * as ops from "@/lib/services/event-ops";
 
 function textResult(data: unknown) {
@@ -291,15 +295,18 @@ export function createHackhostMcpHandler(getUserId: () => string) {
         "get_hackathon",
         {
           description:
-            "Fetch a hackathon bundle (page blocks, prizes, sponsors, tracks, challenges, schedule).",
+            "Fetch a hackathon bundle (page blocks, prizes, sponsors, tracks, challenges, schedule). Published events are readable by any auth user; drafts/archived require organizer. Set requireOrganizer to force organizer check.",
           inputSchema: z.object({
             slug: z.string(),
             requireOrganizer: z.boolean().optional(),
           }),
         },
         wrap(async ({ slug, requireOrganizer }) => {
+          const userId = getUserId();
           if (requireOrganizer) {
-            await getHackathonOwnedByUser(slug, getUserId());
+            await requireOrganizerBySlug(slug, userId);
+          } else {
+            await requireReadableHackathonBySlug(slug, userId);
           }
           const bundle = await getHackathonBundle(slug);
           if (!bundle) throw new Error("Not found");
